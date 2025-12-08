@@ -1,0 +1,339 @@
+/**
+ * 解读弹窗组件样式
+ */
+
+/* 弹窗容器 - 基础样式 */
+.tooltip-container {
+  position: relative;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 容器模式 - 底部位置 */
+.tooltip-container.position-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40%;
+  border-radius: 16rpx 16rpx 0 0;
+  animation: slideUpContainer 0.3s ease-out;
+}
+
+/* 容器模式 - 顶部位置 */
+.tooltip-container.position-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 40%;
+  border-radius: 0 0 16rpx 16rpx;
+  animation: slideDownContainer 0.3s ease-out;
+}
+
+/* Modal 模式 */
+.tooltip-container.modal {
+  width: 100%;
+  max-height: 70vh;
+  border-radius: 32rpx 32rpx 0 0;
+  animation: slideUpModal 0.3s ease-out;
+}
+
+@keyframes slideUpContainer {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDownContainer {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpModal {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* 关闭按钮 */
+.close-btn {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.close-btn:active {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.close-icon {
+  font-size: 40rpx;
+  color: #666;
+  line-height: 1;
+}
+
+/* 内容区域 */
+.tooltip-content {
+  flex: 1;
+  padding: 32rpx;
+  padding-top: 60rpx;
+  overflow-y: auto;
+}
+
+.page-content {
+  min-height: 100rpx;
+}
+
+/* 富文本类型 */
+.page-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  line-height: 1.4;
+}
+
+.page-image {
+  width: 100%;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.page-text {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.8;
+  word-break: break-all;
+}
+
+/* 视频类型 */
+.page-video {
+  width: 100%;
+  height: 360rpx;
+  border-radius: 12rpx;
+  background: #000;
+}
+
+/* 音频类型 */
+.audio-container {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: #f5f5f5;
+  border-radius: 16rpx;
+}
+
+.audio-cover {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+}
+
+.audio-cover-placeholder {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.audio-icon {
+  font-size: 48rpx;
+  color: #fff;
+}
+
+.audio-info {
+  flex: 1;
+  margin-left: 24rpx;
+}
+
+.audio-title {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 16rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audio-controls {
+  display: flex;
+  align-items: center;
+}
+
+.play-btn {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: #ff4d4f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.play-btn:active {
+  transform: scale(0.95);
+}
+
+.play-icon {
+  font-size: 28rpx;
+  color: #fff;
+}
+
+.audio-progress {
+  flex: 1;
+  margin-left: 20rpx;
+}
+
+.progress-bar {
+  height: 8rpx;
+  background: #ddd;
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin-bottom: 8rpx;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #ff4d4f;
+  border-radius: 4rpx;
+  transition: width 0.1s linear;
+}
+
+.time-display {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.time-display text {
+  margin: 0 4rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200rpx;
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* 分页控制 */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 32rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.05);
+  background: #fff;
+}
+
+.page-btn {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-btn:active:not(.disabled) {
+  background: #e0e0e0;
+}
+
+.page-btn.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.btn-icon {
+  font-size: 36rpx;
+  color: #333;
+  line-height: 1;
+}
+
+.page-dots {
+  display: flex;
+  align-items: center;
+  margin: 0 32rpx;
+}
+
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #ddd;
+  margin: 0 8rpx;
+  transition: all 0.2s ease;
+}
+
+.dot.active {
+  background: #ff4d4f;
+  width: 32rpx;
+  border-radius: 8rpx;
+}
+
+/* PC 端适配 */
+@media (min-width: 768px) {
+  .tooltip-container.modal {
+    width: 60%;
+    max-width: 800rpx;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 36rpx;
+  }
+
+  .page-text {
+    font-size: 30rpx;
+  }
+
+  .page-video {
+    height: 450rpx;
+  }
+
+  .close-btn {
+    width: 64rpx;
+    height: 64rpx;
+  }
+
+  .close-icon {
+    font-size: 44rpx;
+  }
+}

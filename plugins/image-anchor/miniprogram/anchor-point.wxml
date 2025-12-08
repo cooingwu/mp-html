@@ -1,0 +1,49 @@
+<!--
+  锚点组件模板
+  用于在图片上显示单个可点击的锚点
+-->
+<view
+  class="anchor-point {{animation ? 'pulse' : ''}} {{styleType}}"
+  style="left: {{anchor.position.x}}%; top: {{anchor.position.y}}%; width: {{size}}px; height: {{size}}px;"
+  bindtap="onTap"
+>
+  <!-- 图片类型样式 -->
+  <image
+    wx:if="{{styleType === 'image'}}"
+    class="anchor-image"
+    src="{{styleImage}}"
+    mode="aspectFit"
+  />
+
+  <!-- 图形类型样式 -->
+  <view
+    wx:elif="{{styleType === 'shape'}}"
+    class="anchor-shape {{shapeClass}}"
+    style="{{shapeStyle}}"
+  ></view>
+
+  <!-- 图标类型样式 -->
+  <view
+    wx:elif="{{styleType === 'icon'}}"
+    class="anchor-icon"
+  >
+    <image class="icon-svg" src="{{iconSvg}}" mode="aspectFit" />
+  </view>
+
+  <!-- 默认样式（显示序号） -->
+  <view
+    wx:else
+    class="anchor-default"
+    style="background-color: {{anchor.style.color || '#ff4d4f'}};"
+  >
+    <text class="anchor-order">{{anchor.order || ''}}</text>
+  </view>
+
+  <!-- 说明文本 -->
+  <view
+    wx:if="{{anchor.label && anchor.label.text}}"
+    class="anchor-label label-{{labelPosition}}"
+  >
+    {{anchor.label.text}}
+  </view>
+</view>

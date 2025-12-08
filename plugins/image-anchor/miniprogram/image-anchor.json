@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "anchor-point": "./anchor-point",
+    "anchor-tooltip": "./anchor-tooltip"
+  }
+}

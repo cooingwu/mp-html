@@ -1,0 +1,125 @@
+<!--
+  解读弹窗组件模板
+  支持富文本、视频、音频三种内容类型
+-->
+<view
+  class="tooltip-container {{mode === 'modal' ? 'modal' : ''}} position-{{position}}"
+  catchtap="stopPropagation"
+>
+  <!-- 关闭按钮 -->
+  <view class="close-btn" bindtap="onClose">
+    <text class="close-icon">×</text>
+  </view>
+
+  <!-- 内容区域 -->
+  <scroll-view class="tooltip-content" scroll-y="{{true}}">
+    <view class="page-content" wx:if="{{currentPage}}">
+      <!-- 富文本类型 -->
+      <block wx:if="{{currentPage.type === 'richtext'}}">
+        <view wx:if="{{currentPage.title}}" class="page-title">{{currentPage.title}}</view>
+        <image
+          wx:if="{{currentPage.image}}"
+          class="page-image"
+          src="{{currentPage.image}}"
+          mode="widthFix"
+          data-src="{{currentPage.image}}"
+          bindtap="onImageTap"
+        />
+        <view wx:if="{{currentPage.content}}" class="page-text">{{currentPage.content}}</view>
+      </block>
+
+      <!-- 视频类型 -->
+      <block wx:elif="{{currentPage.type === 'video'}}">
+        <video
+          wx:if="{{currentPage.video}}"
+          class="page-video"
+          src="{{currentPage.video}}"
+          poster="{{currentPage.videoCover}}"
+          controls="{{true}}"
+          show-center-play-btn="{{true}}"
+          object-fit="contain"
+          bindplay="onVideoPlay"
+        />
+      </block>
+
+      <!-- 音频类型 -->
+      <block wx:elif="{{currentPage.type === 'audio'}}">
+        <view class="audio-container">
+          <image
+            wx:if="{{currentPage.audioCover}}"
+            class="audio-cover"
+            src="{{currentPage.audioCover}}"
+            mode="aspectFill"
+          />
+          <view wx:else class="audio-cover-placeholder">
+            <text class="audio-icon">♫</text>
+          </view>
+          <view class="audio-info">
+            <view class="audio-title">{{currentPage.audioTitle || '音频'}}</view>
+            <view class="audio-controls">
+              <view class="play-btn" bindtap="toggleAudio">
+                <text class="play-icon">{{isPlaying ? '⏸' : '▶'}}</text>
+              </view>
+              <view class="audio-progress">
+                <view class="progress-bar">
+                  <view
+                    class="progress-fill"
+                    style="width: {{audioDuration > 0 ? (audioCurrentTime / audioDuration * 100) : 0}}%"
+                  ></view>
+                </view>
+                <view class="time-display">
+                  <text>{{audioCurrentTime > 0 ? formatTime(audioCurrentTime) : '00:00'}}</text>
+                  <text>/</text>
+                  <text>{{audioDuration > 0 ? formatTime(audioDuration) : '00:00'}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:else>
+      <text>暂无内容</text>
+    </view>
+  </scroll-view>
+
+  <!-- 分页控制（多页时显示） -->
+  <view wx:if="{{pages.length > 1}}" class="pagination">
+    <view
+      class="page-btn page-prev {{currentIndex === 0 ? 'disabled' : ''}}"
+      bindtap="prevPage"
+    >
+      <text class="btn-icon">‹</text>
+    </view>
+
+    <view class="page-dots">
+      <view
+        wx:for="{{pages}}"
+        wx:key="id"
+        class="dot {{index === currentIndex ? 'active' : ''}}"
+        bindtap="goToPage"
+        data-index="{{index}}"
+      ></view>
+    </view>
+
+    <view
+      class="page-btn page-next {{currentIndex === pages.length - 1 ? 'disabled' : ''}}"
+      bindtap="nextPage"
+    >
+      <text class="btn-icon">›</text>
+    </view>
+  </view>
+</view>
+
+<!-- WXS 模块用于格式化时间 -->
+<wxs module="utils">
+  module.exports = {
+    formatTime: function(seconds) {
+      var mins = Math.floor(seconds / 60)
+      var secs = Math.floor(seconds % 60)
+      return (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs
+    }
+  }
+</wxs>
