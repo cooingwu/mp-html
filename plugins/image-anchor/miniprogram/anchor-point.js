@@ -73,7 +73,8 @@ Component({
     iconSvg: '', // 图标 SVG
     iconColor: '#ffffff',
     labelPosition: 'right', // 说明文本位置
-    isPC: false
+    isPC: false,
+    pulseColor: '#ff4d4f' // 脉冲动画颜色
   },
 
   observers: {
@@ -122,6 +123,7 @@ Component({
       let shapeClass = ''
       let iconSvg = ''
       let iconColor = '#ffffff'
+      let pulseColor = '#ff4d4f' // 脉冲动画颜色
 
       if (preset) {
         styleType = preset.type || 'shape'
@@ -131,15 +133,19 @@ Component({
         } else if (preset.type === 'shape' && preset.shape) {
           const shape = preset.shape
           shapeClass = 'shape-' + (shape.type || 'circle')
-          const styles = []
-          if (shape.color) styles.push(`background-color: ${shape.color}`)
-          if (shape.borderWidth && shape.borderColor) {
-            styles.push(`border: ${shape.borderWidth}px solid ${shape.borderColor}`)
+          const styleArr = []
+          if (shape.color) {
+            styleArr.push(`background-color: ${shape.color}`)
+            pulseColor = shape.color
           }
-          shapeStyle = styles.join(';')
+          if (shape.borderWidth && shape.borderColor) {
+            styleArr.push(`border: ${shape.borderWidth}px solid ${shape.borderColor}`)
+          }
+          shapeStyle = styleArr.join(';')
         } else if (preset.type === 'icon' && preset.icon) {
           iconColor = preset.icon.color || '#ffffff'
           iconSvg = getColoredIconSvg(preset.icon.name, iconColor)
+          pulseColor = iconColor
         }
       } else {
         // 使用自定义样式或默认样式
@@ -148,6 +154,7 @@ Component({
           styleImage = anchor.style.customImage
         } else {
           styleType = 'default'
+          pulseColor = anchor.style.color || '#ff4d4f'
         }
       }
 
@@ -165,7 +172,8 @@ Component({
         shapeClass,
         iconSvg,
         iconColor,
-        labelPosition
+        labelPosition,
+        pulseColor
       })
     },
 
@@ -207,7 +215,7 @@ Component({
      * @description 点击锚点
      */
     onTap() {
-      this.triggerEvent('tap', { anchor: this.data.anchor })
+      this.triggerEvent('anchortap', { anchor: this.data.anchor })
     }
   }
 })

@@ -69,28 +69,34 @@ Component({
         }
       }
 
-      if (root) {
-        const { node } = this.data
+      const { node } = this.data
+
+      // 优先使用 node.anchorData（由 index.js 在解析时设置）
+      let anchors = []
+      if (node.anchorData && node.anchorData.anchors) {
+        anchors = node.anchorData.anchors
+      } else if (root) {
+        // 如果没有 anchorData，从 root 获取
         const imageIndex = parseInt(node.attrs && node.attrs['data-image-index']) || 0
-
-        // 获取该图片的锚点数据
         const imageAnchors = root.properties.imageAnchors || []
-        const anchorConfig = imageAnchors.find(a => a.imageIndex === imageIndex)
-        const anchors = anchorConfig ? anchorConfig.anchors : []
+        // 过滤出该图片的所有锚点
+        anchors = imageAnchors.filter(a => a.imageIndex === imageIndex)
+      }
 
-        // 获取其他配置
-        const styles = root.properties.anchorStyles || []
-        const mode = root.properties.tooltipMode || 'container'
-        const animation = root.properties.showAnchorAnimation !== false
+      // 获取其他配置
+      const styles = root ? (root.properties.anchorStyles || []) : []
+      const mode = root ? (root.properties.tooltipMode || 'container') : 'container'
+      const animation = root ? (root.properties.showAnchorAnimation !== false) : true
 
-        this.setData({
-          anchors,
-          styles,
-          mode,
-          animation
-        })
+      this.setData({
+        anchors,
+        styles,
+        mode,
+        animation
+      })
 
-        // 保存 root 引用
+      // 保存 root 引用
+      if (root) {
         this.root = root
       }
     },
@@ -141,11 +147,14 @@ Component({
      * @description 锚点点击
      */
     onAnchorTap(e) {
-      const { anchor } = e.detail
+      const { anchor } = e.detail || {}
+      if (!anchor) return
+
       const { mode } = this.data
 
-      // 计算弹窗位置
-      const tooltipPosition = anchor.position.y > 60 ? 'top' : 'bottom'
+      // 计算弹窗位置（安全访问 position）
+      const position = anchor.position || { x: 50, y: 50 }
+      const tooltipPosition = position.y > 60 ? 'top' : 'bottom'
 
       this.setData({
         activeAnchor: anchor,

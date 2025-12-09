@@ -7,6 +7,7 @@
   position: relative;
   display: inline-block;
   width: 100%;
+  overflow: hidden; /* 限制锚点说明文本不超出图片 */
 }
 
 /* 图片 */
@@ -23,6 +24,7 @@
   right: 0;
   bottom: 0;
   pointer-events: none;
+  overflow: hidden; /* 限制内容不超出 */
 }
 
 .anchors-layer anchor-point {

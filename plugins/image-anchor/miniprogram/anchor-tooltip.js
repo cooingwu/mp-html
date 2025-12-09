@@ -45,10 +45,13 @@ Component({
   observers: {
     'anchor': function(anchor) {
       if (anchor && anchor.tooltipPages) {
-        this.setData({
-          pages: anchor.tooltipPages,
-          currentIndex: 0,
-          currentPage: anchor.tooltipPages[0] || null
+        // 转换云存储链接
+        this.convertCloudUrls(anchor.tooltipPages).then(pages => {
+          this.setData({
+            pages: pages,
+            currentIndex: 0,
+            currentPage: pages[0] || null
+          })
         })
       } else {
         this.setData({
@@ -68,6 +71,69 @@ Component({
   },
 
   methods: {
+    /**
+     * @description 判断是否为云存储链接
+     * @param {String} url 链接地址
+     * @returns {Boolean}
+     */
+    isCloudUrl(url) {
+      return url && typeof url === 'string' && url.startsWith('cloud://')
+    },
+
+    /**
+     * @description 转换云存储链接为临时链接
+     * @param {Array} pages 解读页列表
+     * @returns {Promise<Array>} 转换后的页面列表
+     */
+    async convertCloudUrls(pages) {
+      if (!pages || !pages.length) return pages
+
+      // 收集所有需要转换的云存储链接
+      const fileList = []
+      const fileMap = {} // 记录链接在pages中的位置
+
+      pages.forEach((page, pageIndex) => {
+        const fields = ['image', 'videoCover', 'video', 'audioCover', 'audio']
+        fields.forEach(field => {
+          if (this.isCloudUrl(page[field])) {
+            fileList.push({
+              fileID: page[field],
+              maxAge: 7200 // 2小时有效期
+            })
+            fileMap[page[field]] = { pageIndex, field }
+          }
+        })
+      })
+
+      // 没有需要转换的链接
+      if (!fileList.length) return pages
+
+      // 调用云存储接口转换
+      try {
+        const res = await wx.cloud.getTempFileURL({
+          fileList: fileList.map(f => f.fileID)
+        })
+
+        // 复制pages避免修改原数据
+        const newPages = JSON.parse(JSON.stringify(pages))
+
+        // 替换为临时链接
+        if (res.fileList) {
+          res.fileList.forEach(file => {
+            if (file.tempFileURL && fileMap[file.fileID]) {
+              const { pageIndex, field } = fileMap[file.fileID]
+              newPages[pageIndex][field] = file.tempFileURL
+            }
+          })
+        }
+
+        return newPages
+      } catch (err) {
+        console.error('转换云存储链接失败', err)
+        return pages
+      }
+    },
+
     /**
      * @description 关闭弹窗
      */
@@ -90,8 +156,8 @@ Component({
      * @description 下一页
      */
     nextPage() {
-      const { currentIndex, pages } = this.data
-      if (currentIndex < pages.length - 1) {
+      const { currentIndex } = this.data
+      if (currentIndex < this.data.pages.length - 1) {
         this.goToPage(currentIndex + 1)
       }
     },

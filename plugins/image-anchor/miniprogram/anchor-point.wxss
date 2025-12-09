@@ -13,23 +13,25 @@
   cursor: pointer;
   box-sizing: border-box;
   transition: transform 0.2s ease;
+  border-radius: 50%;
 }
 
 .anchor-point:active {
   transform: translate(-50%, -50%) scale(0.95);
 }
 
-/* 脉冲动画 */
+/* 脉冲动画 - 使用 CSS 变量 */
 .anchor-point.pulse::before {
   content: '';
   position: absolute;
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  background: inherit;
+  background: var(--pulse-color, #ff4d4f);
   opacity: 0.6;
   animation: pulse 2s ease-out infinite;
   pointer-events: none;
+  z-index: -1;
 }
 
 @keyframes pulse {
@@ -38,11 +40,11 @@
     opacity: 0.6;
   }
   70% {
-    transform: scale(1.6);
+    transform: scale(1.8);
     opacity: 0;
   }
   100% {
-    transform: scale(1.6);
+    transform: scale(1.8);
     opacity: 0;
   }
 }
@@ -59,23 +61,25 @@
   height: 100%;
 }
 
-/* 图形类型 */
+/* 图形类型 - 在外层设置 border-radius */
+.anchor-point.shape-circle {
+  border-radius: 50%;
+}
+
+.anchor-point.shape-square {
+  border-radius: 4px;
+}
+
+.anchor-point.shape-rounded {
+  border-radius: 8px;
+}
+
+/* 图形内容 */
 .anchor-shape {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-}
-
-.shape-circle {
-  border-radius: 50%;
-}
-
-.shape-square {
-  border-radius: 4rpx;
-}
-
-.shape-rounded {
-  border-radius: 16rpx;
+  border-radius: inherit;
 }
 
 /* 图标类型 */
@@ -100,51 +104,51 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .anchor-order {
   color: #ffffff;
-  font-size: 24rpx;
+  font-size: 12px;
   font-weight: bold;
 }
 
-/* 说明文本 */
+/* 说明文本 - 使用 px 单位避免 PC 端放大 */
 .anchor-label {
   position: absolute;
   white-space: nowrap;
-  font-size: 24rpx;
+  font-size: 12px;
   color: #ffffff;
   background: rgba(0, 0, 0, 0.75);
-  padding: 6rpx 16rpx;
-  border-radius: 8rpx;
-  max-width: 200rpx;
+  padding: 3px 8px;
+  border-radius: 4px;
+  max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .label-right {
-  left: calc(100% + 12rpx);
+  left: calc(100% + 6px);
   top: 50%;
   transform: translateY(-50%);
 }
 
 .label-left {
-  right: calc(100% + 12rpx);
+  right: calc(100% + 6px);
   top: 50%;
   transform: translateY(-50%);
 }
 
 .label-top {
-  bottom: calc(100% + 12rpx);
+  bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
 }
 
 .label-bottom {
-  top: calc(100% + 12rpx);
+  top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
 }
@@ -152,12 +156,12 @@
 /* PC 端适配 */
 @media (min-width: 768px) {
   .anchor-label {
-    max-width: 300rpx;
-    font-size: 26rpx;
-    padding: 8rpx 20rpx;
+    max-width: 150px;
+    font-size: 13px;
+    padding: 4px 10px;
   }
 
   .anchor-order {
-    font-size: 28rpx;
+    font-size: 14px;
   }
 }

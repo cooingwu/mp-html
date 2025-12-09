@@ -26,7 +26,7 @@
       styles="{{styles}}"
       animation="{{animation}}"
       image-width="{{imageWidth}}"
-      bindtap="onAnchorTap"
+      bindanchortap="onAnchorTap"
     />
   </view>
 
