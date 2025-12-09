@@ -1,6 +1,6 @@
 {
   "name": "@coohub/mp-html",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "小程序富文本组件（含图片锚点插件）",
   "miniprogram": "dist/mp-weixin",
   "repository": "https://github.com/cooingwu/mp-html",

@@ -1,6 +1,6 @@
 <template>
   <view :id="attrs.id" :class="'_block _'+name+' '+attrs.class" :style="attrs.style">
-    <block v-for="(n, i) in childs" v-bind:key="i">
+    <block v-for="(n, i) in nodes" v-bind:key="i">
       <!-- 图片 -->
       <!-- 占位图 -->
       <image v-if="n.name==='img'&&!n.t&&((opts[1]&&!ctrl[i])||ctrl[i]<0)" class="_img" :style="n.attrs.style" :src="ctrl[i]<0?opts[2]:opts[1]" mode="widthFix" />
@@ -31,7 +31,7 @@
       <!-- #ifndef MP-WEIXIN || MP-BAIDU || MP-ALIPAY || MP-TOUTIAO -->
       <text v-else-if="n.text" decode>{{n.text}}</text>
       <!-- #endif -->
-      <text v-else-if="n.name==='br'">\n</text>
+      <text v-else-if="n.name==='br'">{{'\n'}}</text>
       <!-- 链接 -->
       <view v-else-if="n.name==='a'" :id="n.attrs.id" :class="(n.attrs.href?'_a ':'')+n.attrs.class" hover-class="_hover" :style="'display:inline;'+n.attrs.style" :data-i="i" @tap.stop="linkTap">
         <node name="span" :childs="n.children" :opts="opts" style="display:inherit" />
@@ -67,7 +67,7 @@
           </block>
         </view>
       </view>
-
+      
       <!-- 富文本 -->
       <!-- #ifdef H5 || ((MP-WEIXIN || MP-QQ || APP-PLUS || MP-360) && VUE2) -->
       <rich-text v-else-if="!n.c&&!handler.isInline(n.name, n.attrs.style)" :id="n.attrs.id" :style="n.f" :user-select="opts[4]" :nodes="[n]" />
@@ -127,6 +127,7 @@ export default {
   data () {
     return {
       ctrl: {},
+      nodes: [],
       // #ifdef MP-WEIXIN
       isiOS: uni.getDeviceInfo().system.includes('iOS')
       // #endif
@@ -142,6 +143,18 @@ export default {
     },
     childs: Array,
     opts: Array
+  },
+  watch: {
+    childs: {
+		  handler (nodes) {
+        // 列表缩短会刷新整个列表，因此进行空填充
+        while (this.nodes.length > nodes.length) {
+			    nodes.push({})
+		    }
+        this.nodes = nodes
+      },
+	    immediate: true
+	  }
   },
   components: {
 
