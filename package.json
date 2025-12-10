@@ -1,6 +1,6 @@
 {
   "name": "@coohub/mp-html",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "小程序富文本组件（含图片锚点插件）",
   "miniprogram": "dist/mp-weixin",
   "repository": "https://github.com/cooingwu/mp-html",
@@ -15,8 +15,20 @@
     "html"
   ],
   "standard": {
-    "globals": ["App", "Page", "Component", "wx", "requirePlugin", "uni", "plus", "weex"],
-    "envs": ["jest", "browser"]
+    "globals": [
+      "App",
+      "Page",
+      "Component",
+      "wx",
+      "requirePlugin",
+      "uni",
+      "plus",
+      "weex"
+    ],
+    "envs": [
+      "jest",
+      "browser"
+    ]
   },
   "jest": {
     "testEnvironment": "jsdom",
