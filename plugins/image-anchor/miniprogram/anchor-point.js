@@ -88,14 +88,6 @@ Component({
   observers: {
     'anchor, styles, imageWidth': function(anchor, styles, imageWidth) {
       if (!anchor || !imageWidth) return
-      // 调试日志：打印接收到的数据
-      console.log('[anchor-point] 数据更新:', {
-        anchorId: anchor.id,
-        presetId: anchor.style?.presetId,
-        stylesCount: styles?.length || 0,
-        stylesIds: styles?.map(s => s._id) || [],
-        imageWidth
-      })
       this.updateStyle()
     }
   },
@@ -133,15 +125,6 @@ Component({
         ? styles.find(s => s._id === anchor.style.presetId)
         : null
 
-      // 调试日志：打印预设样式查找结果
-      console.log('[anchor-point] 预设样式查找:', {
-        presetId: anchor.style.presetId,
-        found: !!preset,
-        presetType: preset?.type,
-        presetName: preset?.name,
-        styles
-      })
-
       let styleType = 'default'
       let styleImage = ''
       let shapeStyle = ''
@@ -154,6 +137,7 @@ Component({
         styleType = preset.type || 'shape'
 
         if (preset.type === 'image' && preset.image) {
+          // 转换云存储路径
           styleImage = preset.image
         } else if (preset.type === 'shape' && preset.shape) {
           const shape = preset.shape
@@ -162,10 +146,9 @@ Component({
           if (shape.color) styleArr.push(`background-color: ${shape.color}`)
           if (shape.borderWidth && shape.borderColor) {
             styleArr.push(`border: ${shape.borderWidth}px solid ${shape.borderColor}`)
-            styleArr.push(`border: ${shape.borderWidth}px solid ${shape.borderColor}`)
           }
           shapeStyle = styleArr.join(';')
-          shapeStyle = styleArr.join(';')
+          pulseColor = shape.color || '#ff4d4f'
         } else if (preset.type === 'icon' && preset.icon) {
           iconColor = preset.icon.color || '#ffffff'
           iconSvg = getColoredIconSvg(preset.icon.name, iconColor)
@@ -175,6 +158,7 @@ Component({
         // 使用自定义样式或默认样式
         if (anchor.style.customImage) {
           styleType = 'image'
+          // 转换云存储路径
           styleImage = anchor.style.customImage
         } else {
           styleType = 'default'
@@ -182,7 +166,7 @@ Component({
         }
       }
 
-      // 先设置基本数据
+      // 设置数据
       this.setData({
         size,
         styleType,

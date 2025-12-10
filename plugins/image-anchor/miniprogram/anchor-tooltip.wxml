@@ -11,7 +11,7 @@
       <!-- 富文本类型 -->
       <block wx:if="{{currentPage.type === 'richtext'}}">
         <view wx:if="{{currentPage.title}}" class="page-title">{{currentPage.title}}</view>
-        <view class="richtext-body">
+        <view class="richtext-body {{currentPage.image ? 'has-image' : ''}}">
           <scroll-view scroll-y class="page-text-scroll" wx:if="{{currentPage.content}}" catchtouchmove="stopPropagation">
             <view class="page-text">{{currentPage.content}}</view>
           </scroll-view>

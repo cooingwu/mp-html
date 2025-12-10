@@ -91,13 +91,14 @@
   z-index: 1;
   width: 100%;
   max-height: 70vh;
+  padding: 0 12px;
+  box-sizing: border-box;
 }
 
-/* PC 端适配 */
-@media (min-width: 768px) {
-  .modal-content {
-    width: 60%;
-    max-width: 800px;
-    margin: 0 auto;
-  }
+/* PC 端适配 - 通过 JS 添加 is-pc class */
+.modal-content.is-pc {
+  width: 60%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0;
 }

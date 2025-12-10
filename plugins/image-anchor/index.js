@@ -58,10 +58,18 @@ ImageAnchorPlugin.prototype.onParse = function (node, parser) {
       node.attrs['data-has-anchors'] = 'true'
       node.attrs['data-image-index'] = String(currentIndex)
 
-      // 存储锚点数据到节点（直接存储匹配到的锚点数组）
+      // 获取预设样式
+      const anchorStyles = this.vm.properties.anchorStyles || []
+      const tooltipMode = this.vm.properties.tooltipMode || 'container'
+      const showAnchorAnimation = this.vm.properties.showAnchorAnimation !== false
+
+      // 存储锚点数据到节点（包含样式配置）
       node.anchorData = {
         imageIndex: currentIndex,
-        anchors: matchedAnchors
+        anchors: matchedAnchors,
+        styles: anchorStyles,
+        tooltipMode: tooltipMode,
+        showAnimation: showAnchorAnimation
       }
 
       // 暴露出来，不被 rich-text 包含

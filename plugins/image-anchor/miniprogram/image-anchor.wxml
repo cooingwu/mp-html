@@ -49,7 +49,7 @@
 <!-- Modal 弹窗（fixed 定位，覆盖全屏） -->
 <view class="modal-overlay" wx:if="{{showModal}}" catchtap="onMaskTap">
   <view class="modal-mask"></view>
-  <view class="modal-content" catchtap="stopPropagation">
+  <view class="modal-content {{isPc ? 'is-pc' : ''}}" catchtap="stopPropagation">
     <anchor-tooltip
       anchor="{{activeAnchor}}"
       mode="modal"

@@ -36,11 +36,14 @@ Component({
     animation: true, // 是否显示动画
     activeAnchor: null, // 当前激活的锚点
     tooltipPosition: 'bottom', // 弹窗位置
-    showModal: false // 是否显示 modal 弹窗
+    showModal: false, // 是否显示 modal 弹窗
+    isPc: false // 是否是 PC 端
   },
 
   lifetimes: {
     attached() {
+      // 判断是否是 PC 端
+      this.checkIsPc()
       // 获取根组件的配置
       this.initFromRoot()
     }
@@ -48,45 +51,37 @@ Component({
 
   methods: {
     /**
-     * @description 从根组件获取配置
+     * @description 判断是否是 PC 端
+     */
+    checkIsPc() {
+      try {
+        const systemInfo = wx.getSystemInfoSync()
+        // 通过屏幕宽度判断，大于 768px 认为是 PC 端
+        const isPc = systemInfo.screenWidth >= 768
+        this.setData({ isPc })
+      } catch (e) {
+        console.error('获取系统信息失败', e)
+      }
+    },
+
+    /**
+     * @description 从节点数据获取配置
      */
     initFromRoot() {
-      // 获取根组件实例
-      let root = null
-      let parent = this.selectOwnerComponent()
-      while (parent) {
-        if (parent.properties && parent.properties.imageAnchors !== undefined) {
-          root = parent
-          break
-        }
-        parent = parent.selectOwnerComponent ? parent.selectOwnerComponent() : null
-      }
+      const { node } = this.properties
 
-      if (!root) {
-        // 尝试通过 root 属性获取
-        if (this.root) {
-          root = this.root
-        }
-      }
-
-      const { node } = this.data
-
-      // 优先使用 node.anchorData（由 index.js 在解析时设置）
+      // 从 node.anchorData 获取所有配置（由 index.js 在解析时设置）
       let anchors = []
-      if (node.anchorData && node.anchorData.anchors) {
-        anchors = node.anchorData.anchors
-      } else if (root) {
-        // 如果没有 anchorData，从 root 获取
-        const imageIndex = parseInt(node.attrs && node.attrs['data-image-index']) || 0
-        const imageAnchors = root.properties.imageAnchors || []
-        // 过滤出该图片的所有锚点
-        anchors = imageAnchors.filter(a => a.imageIndex === imageIndex)
-      }
+      let styles = []
+      let mode = 'container'
+      let animation = true
 
-      // 获取其他配置
-      const styles = root ? (root.properties.anchorStyles || []) : []
-      const mode = root ? (root.properties.tooltipMode || 'container') : 'container'
-      const animation = root ? (root.properties.showAnchorAnimation !== false) : true
+      if (node.anchorData) {
+        anchors = node.anchorData.anchors || []
+        styles = node.anchorData.styles || []
+        mode = node.anchorData.tooltipMode || 'container'
+        animation = node.anchorData.showAnimation !== false
+      }
 
       this.setData({
         anchors,
@@ -94,11 +89,6 @@ Component({
         mode,
         animation
       })
-
-      // 保存 root 引用
-      if (root) {
-        this.root = root
-      }
     },
 
     /**
