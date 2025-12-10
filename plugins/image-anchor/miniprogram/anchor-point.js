@@ -61,6 +61,14 @@ Component({
     imageWidth: {
       type: Number,
       value: 0
+    },
+
+    /**
+     * @description 图片高度（用于计算说明文本位置）
+     */
+    imageHeight: {
+      type: Number,
+      value: 0
     }
   },
 
@@ -80,6 +88,14 @@ Component({
   observers: {
     'anchor, styles, imageWidth': function(anchor, styles, imageWidth) {
       if (!anchor || !imageWidth) return
+      // 调试日志：打印接收到的数据
+      console.log('[anchor-point] 数据更新:', {
+        anchorId: anchor.id,
+        presetId: anchor.style?.presetId,
+        stylesCount: styles?.length || 0,
+        stylesIds: styles?.map(s => s._id) || [],
+        imageWidth
+      })
       this.updateStyle()
     }
   },
@@ -117,6 +133,15 @@ Component({
         ? styles.find(s => s._id === anchor.style.presetId)
         : null
 
+      // 调试日志：打印预设样式查找结果
+      console.log('[anchor-point] 预设样式查找:', {
+        presetId: anchor.style.presetId,
+        found: !!preset,
+        presetType: preset?.type,
+        presetName: preset?.name,
+        styles
+      })
+
       let styleType = 'default'
       let styleImage = ''
       let shapeStyle = ''
@@ -134,13 +159,12 @@ Component({
           const shape = preset.shape
           shapeClass = 'shape-' + (shape.type || 'circle')
           const styleArr = []
-          if (shape.color) {
-            styleArr.push(`background-color: ${shape.color}`)
-            pulseColor = shape.color
-          }
+          if (shape.color) styleArr.push(`background-color: ${shape.color}`)
           if (shape.borderWidth && shape.borderColor) {
             styleArr.push(`border: ${shape.borderWidth}px solid ${shape.borderColor}`)
+            styleArr.push(`border: ${shape.borderWidth}px solid ${shape.borderColor}`)
           }
+          shapeStyle = styleArr.join(';')
           shapeStyle = styleArr.join(';')
         } else if (preset.type === 'icon' && preset.icon) {
           iconColor = preset.icon.color || '#ffffff'
@@ -158,12 +182,7 @@ Component({
         }
       }
 
-      // 计算说明文本位置
-      let labelPosition = 'right'
-      if (anchor.label) {
-        labelPosition = this.calculateLabelPosition(anchor)
-      }
-
+      // 先设置基本数据
       this.setData({
         size,
         styleType,
@@ -172,49 +191,90 @@ Component({
         shapeClass,
         iconSvg,
         iconColor,
-        labelPosition,
-        pulseColor
+        labelPosition: anchor.label?.position || 'right'
+      })
+
+      // 延迟计算 label 位置（等待渲染完成后获取实际尺寸）
+      if (anchor.label?.text) {
+        setTimeout(() => {
+          this.calculateAndUpdateLabelPosition()
+        }, 50)
+      }
+    },
+
+    /**
+     * @description 计算并更新说明文本位置（基于实际渲染尺寸）
+     */
+    calculateAndUpdateLabelPosition() {
+      const { anchor, imageWidth, imageHeight } = this.data
+      if (!anchor?.label?.text) return
+
+      const preferredPosition = anchor.label.position || 'right'
+      const autoPosition = anchor.label.autoPosition !== false
+
+      if (!autoPosition) {
+        this.setData({ labelPosition: preferredPosition })
+        return
+      }
+
+      // 使用 createSelectorQuery 获取实际尺寸
+      const query = this.createSelectorQuery()
+      query.select('.anchor-label').boundingClientRect()
+      query.exec((res) => {
+        const labelRect = res[0]
+        if (!labelRect) {
+          this.setData({ labelPosition: preferredPosition })
+          return
+        }
+
+        const { x, y } = anchor.position || { x: 50, y: 50 }
+
+        // 计算 label 尺寸相对于图片尺寸的百分比
+        const actualImageHeight = imageHeight || (imageWidth * 0.75) // 备用默认值
+        const labelWidthPercent = (labelRect.width / imageWidth) * 100 + 3 // 加上间距
+        const labelHeightPercent = (labelRect.height / actualImageHeight) * 100 + 3
+
+        // 检查各个方向是否有足够空间
+        const spaceMap = {
+          right: (100 - x) > labelWidthPercent,
+          left: x > labelWidthPercent,
+          top: y > labelHeightPercent,
+          bottom: (100 - y) > labelHeightPercent
+        }
+
+        // 按优先级查找可用位置
+        const priorities = [preferredPosition, 'right', 'left', 'top', 'bottom']
+          .filter((pos, idx, arr) => arr.indexOf(pos) === idx)
+
+        const validPosition = priorities.find(pos => spaceMap[pos]) || 'hidden'
+
+        console.log('[anchor-point] Label 位置计算:', {
+          labelSize: { width: labelRect.width, height: labelRect.height },
+          imageSize: { width: imageWidth, height: actualImageHeight },
+          anchorPosition: { x, y },
+          spaceMap,
+          result: validPosition
+        })
+
+        this.setData({ labelPosition: validPosition })
       })
     },
 
     /**
-     * @description 计算说明文本位置
+     * @description 计算说明文本位置（已弃用，保留兼容）
      * @param {Object} anchor 锚点数据
      * @returns {String} 位置
      */
     calculateLabelPosition(anchor) {
       if (!anchor.label || !anchor.label.text) return 'right'
-
-      const preferredPosition = anchor.label.position || 'right'
-      const autoPosition = anchor.label.autoPosition !== false
-      const { x, y } = anchor.position || { x: 50, y: 50 }
-
-      if (!autoPosition) {
-        return preferredPosition
-      }
-
-      // 简单的边界检测（假设 label 宽度约 20%，高度约 8%）
-      const labelWidthPercent = 20
-      const labelHeightPercent = 8
-
-      const spaceMap = {
-        right: (100 - x) > labelWidthPercent,
-        left: x > labelWidthPercent,
-        top: y > labelHeightPercent,
-        bottom: (100 - y) > labelHeightPercent
-      }
-
-      // 按优先级查找可用位置
-      const priorities = [preferredPosition, 'right', 'bottom', 'left', 'top']
-        .filter((pos, idx, arr) => arr.indexOf(pos) === idx)
-
-      return priorities.find(pos => spaceMap[pos]) || 'right'
+      return anchor.label.position || 'right'
     },
 
     /**
      * @description 点击锚点
      */
     onTap() {
+      // 触发 anchortap 自定义事件，避免与原生 tap 事件冲突
       this.triggerEvent('anchortap', { anchor: this.data.anchor })
     }
   }

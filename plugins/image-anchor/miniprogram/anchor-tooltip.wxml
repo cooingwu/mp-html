@@ -1,18 +1,22 @@
 <!-- 解读弹窗组件模板
-  支持富文本、视频、音频三种内容类型 -->
+  支持富文本、视频、音频三种内容类型
+  样式与管理端和 anchor-image 组件保持一致 -->
+<wxs module="utils" src="./utils.wxs"></wxs>
 <view class="tooltip-container {{mode === 'modal' ? 'modal' : ''}} position-{{position}}" catchtap="stopPropagation">
   <!-- 关闭按钮 -->
-  <view class="close-btn" bindtap="onClose">
-    <text class="close-icon">×</text>
-  </view>
+  <view class="close-btn" bindtap="onClose">×</view>
   <!-- 内容区域 -->
-  <scroll-view class="tooltip-content" scroll-y="{{true}}">
+  <view class="tooltip-content">
     <view class="page-content" wx:if="{{currentPage}}">
       <!-- 富文本类型 -->
       <block wx:if="{{currentPage.type === 'richtext'}}">
         <view wx:if="{{currentPage.title}}" class="page-title">{{currentPage.title}}</view>
-        <image wx:if="{{currentPage.image}}" class="page-image" src="{{currentPage.image}}" mode="widthFix" data-src="{{currentPage.image}}" bindtap="onImageTap" />
-        <view wx:if="{{currentPage.content}}" class="page-text">{{currentPage.content}}</view>
+        <view class="richtext-body">
+          <scroll-view scroll-y class="page-text-scroll" wx:if="{{currentPage.content}}" catchtouchmove="stopPropagation">
+            <view class="page-text">{{currentPage.content}}</view>
+          </scroll-view>
+          <image wx:if="{{currentPage.image}}" class="page-image" src="{{currentPage.image}}" mode="aspectFit" data-src="{{currentPage.image}}" bindtap="onImageTap" />
+        </view>
       </block>
       <!-- 视频类型 -->
       <block wx:elif="{{currentPage.type === 'video'}}">
@@ -36,9 +40,9 @@
                   <view class="progress-fill" style="width: {{audioDuration > 0 ? (audioCurrentTime / audioDuration * 100) : 0}}%"></view>
                 </view>
                 <view class="time-display">
-                  <text>{{audioCurrentTime > 0 ? formatTime(audioCurrentTime) : '00:00'}}</text>
+                  <text>{{utils.formatTime(audioCurrentTime)}}</text>
                   <text>/</text>
-                  <text>{{audioDuration > 0 ? formatTime(audioDuration) : '00:00'}}</text>
+                  <text>{{utils.formatTime(audioDuration)}}</text>
                 </view>
               </view>
             </view>
@@ -50,7 +54,7 @@
     <view class="empty-state" wx:else>
       <text>暂无内容</text>
     </view>
-  </scroll-view>
+  </view>
   <!-- 分页控制（多页时显示） -->
   <view wx:if="{{pages.length > 1}}" class="pagination">
     <view class="page-btn page-prev {{currentIndex === 0 ? 'disabled' : ''}}" bindtap="prevPage">
@@ -64,25 +68,3 @@
     </view>
   </view>
 </view>
-<!-- WXS 模块用于格式化时间 -->
-<wxs module="utils">
-  module.exports = {
-    formatTime: function(seconds) {
-    var mins = Math.floor(seconds / 60);
-    var secs = Math.floor(seconds % 60);
-    if (Math.max(mins, 10) === mins) {
-      mins = '' + mins;
-    } else {
-      mins = '0' + mins;
-    }
-
-    if (Math.max(secs, 10) === secs) {
-      secs = '' + secs;
-    } else {
-      secs = '0' + secs;
-    }
-    
-    return mins + ':' + secs;
-  }
-  }
-</wxs>

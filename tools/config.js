@@ -16,7 +16,7 @@ module.exports = {
     // 'search',    // 关键词搜索
     // 'style',     // 解析 style 标签
     // 'txv-video', // 使用腾讯视频
-    // 'img-cache'  // 图片缓存
+    // 'img-cache',  // 图片缓存
     // 'card',      // 卡片展示
     'image-anchor', // 图片锚点
   ],

@@ -36,7 +36,6 @@ Component({
     pages: [], // 解读页列表
     currentIndex: 0, // 当前页索引
     currentPage: null, // 当前页数据
-    audioContext: null, // 音频上下文
     isPlaying: false, // 音频是否播放中
     audioDuration: 0, // 音频时长
     audioCurrentTime: 0 // 音频当前时间
@@ -45,12 +44,12 @@ Component({
   observers: {
     'anchor': function(anchor) {
       if (anchor && anchor.tooltipPages) {
-        // 转换云存储链接
-        this.convertCloudUrls(anchor.tooltipPages).then(pages => {
+        // 处理云存储路径，获取临时 URL
+        this.processCloudUrls(anchor.tooltipPages).then(processedPages => {
           this.setData({
-            pages: pages,
+            pages: processedPages,
             currentIndex: 0,
-            currentPage: pages[0] || null
+            currentPage: processedPages[0] || null
           })
         })
       } else {
@@ -72,64 +71,85 @@ Component({
 
   methods: {
     /**
-     * @description 判断是否为云存储链接
-     * @param {String} url 链接地址
-     * @returns {Boolean}
-     */
-    isCloudUrl(url) {
-      return url && typeof url === 'string' && url.startsWith('cloud://')
-    },
-
-    /**
-     * @description 转换云存储链接为临时链接
+     * @description 处理云存储路径，获取临时 URL
      * @param {Array} pages 解读页列表
-     * @returns {Promise<Array>} 转换后的页面列表
+     * @returns {Promise<Array>} 处理后的解读页列表
      */
-    async convertCloudUrls(pages) {
-      if (!pages || !pages.length) return pages
+    async processCloudUrls(pages) {
+      if (!pages || pages.length === 0) return pages
 
-      // 收集所有需要转换的云存储链接
-      const fileList = []
-      const fileMap = {} // 记录链接在pages中的位置
-
-      pages.forEach((page, pageIndex) => {
-        const fields = ['image', 'videoCover', 'video', 'audioCover', 'audio']
-        fields.forEach(field => {
-          if (this.isCloudUrl(page[field])) {
-            fileList.push({
-              fileID: page[field],
-              maxAge: 7200 // 2小时有效期
-            })
-            fileMap[page[field]] = { pageIndex, field }
-          }
-        })
+      // 收集所有需要转换的云存储路径
+      const cloudPaths = []
+      pages.forEach(page => {
+        if (page.image && page.image.startsWith('cloud://')) {
+          cloudPaths.push(page.image)
+        }
+        if (page.video && page.video.startsWith('cloud://')) {
+          cloudPaths.push(page.video)
+        }
+        if (page.videoCover && page.videoCover.startsWith('cloud://')) {
+          cloudPaths.push(page.videoCover)
+        }
+        if (page.audio && page.audio.startsWith('cloud://')) {
+          cloudPaths.push(page.audio)
+        }
+        if (page.audioCover && page.audioCover.startsWith('cloud://')) {
+          cloudPaths.push(page.audioCover)
+        }
       })
 
-      // 没有需要转换的链接
-      if (!fileList.length) return pages
+      if (cloudPaths.length === 0) return pages
 
-      // 调用云存储接口转换
       try {
-        const res = await wx.cloud.getTempFileURL({
-          fileList: fileList.map(f => f.fileID)
+        // 获取临时 URL
+        const res = await wx.cloud.getTempFileURL({ fileList: cloudPaths })
+
+        // 构建 fileID -> tempFileURL 的映射
+        const urlMap = {}
+        res.fileList.forEach(item => {
+          if (item.tempFileURL) {
+            urlMap[item.fileID] = item.tempFileURL
+          }
         })
 
-        // 复制pages避免修改原数据
-        const newPages = JSON.parse(JSON.stringify(pages))
+        // 手动深拷贝，避免 JSON 序列化问题
+        const processedPages = pages.map(page => {
+          const newPage = {
+            id: page.id,
+            type: page.type,
+            title: page.title,
+            content: page.content,
+            image: page.image,
+            video: page.video,
+            videoCover: page.videoCover,
+            audio: page.audio,
+            audioCover: page.audioCover,
+            audioTitle: page.audioTitle
+          }
 
-        // 替换为临时链接
-        if (res.fileList) {
-          res.fileList.forEach(file => {
-            if (file.tempFileURL && fileMap[file.fileID]) {
-              const { pageIndex, field } = fileMap[file.fileID]
-              newPages[pageIndex][field] = file.tempFileURL
-            }
-          })
-        }
+          // 替换云存储路径
+          if (newPage.image && urlMap[newPage.image]) {
+            newPage.image = urlMap[newPage.image]
+          }
+          if (newPage.video && urlMap[newPage.video]) {
+            newPage.video = urlMap[newPage.video]
+          }
+          if (newPage.videoCover && urlMap[newPage.videoCover]) {
+            newPage.videoCover = urlMap[newPage.videoCover]
+          }
+          if (newPage.audio && urlMap[newPage.audio]) {
+            newPage.audio = urlMap[newPage.audio]
+          }
+          if (newPage.audioCover && urlMap[newPage.audioCover]) {
+            newPage.audioCover = urlMap[newPage.audioCover]
+          }
 
-        return newPages
+          return newPage
+        })
+
+        return processedPages
       } catch (err) {
-        console.error('转换云存储链接失败', err)
+        console.error('获取云存储临时 URL 失败:', err)
         return pages
       }
     },
@@ -212,6 +232,7 @@ Component({
       // 可以在此处理视频播放统计等
     },
 
+    audioContext: null, // 音频上下文
     /**
      * @description 初始化音频播放器
      */

@@ -24,11 +24,34 @@
   right: 0;
   bottom: 0;
   pointer-events: none;
-  overflow: hidden; /* 限制内容不超出 */
 }
 
 .anchors-layer anchor-point {
   pointer-events: auto;
+}
+
+/* 容器内弹窗 - 绝对定位，最高 40% */
+.tooltip-wrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  pointer-events: auto;
+  padding: 8px;
+  box-sizing: border-box;
+  max-height: 40%;
+}
+
+/* 弹窗在下方（锚点在图片上半部分） */
+.tooltip-wrapper.position-bottom {
+  bottom: 0;
+  top: auto;
+}
+
+/* 弹窗在上方（锚点在图片下半部分） */
+.tooltip-wrapper.position-top {
+  top: 0;
+  bottom: auto;
 }
 
 /* Modal 遮罩层 */
@@ -74,7 +97,7 @@
 @media (min-width: 768px) {
   .modal-content {
     width: 60%;
-    max-width: 800rpx;
+    max-width: 800px;
     margin: 0 auto;
   }
 }

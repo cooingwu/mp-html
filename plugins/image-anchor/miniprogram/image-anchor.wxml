@@ -26,19 +26,24 @@
       styles="{{styles}}"
       animation="{{animation}}"
       image-width="{{imageWidth}}"
+      image-height="{{imageHeight}}"
       bindanchortap="onAnchorTap"
     />
   </view>
 
-  <!-- 容器内弹窗 -->
-  <anchor-tooltip
+  <!-- 容器内弹窗 - 绝对定位覆盖图片 -->
+  <view
+    class="tooltip-wrapper position-{{tooltipPosition}}"
     wx:if="{{mode === 'container' && activeAnchor}}"
-    anchor="{{activeAnchor}}"
-    position="{{tooltipPosition}}"
-    mode="container"
-    bindclose="onTooltipClose"
-    bindpagechange="onPageChange"
-  />
+  >
+    <anchor-tooltip
+      anchor="{{activeAnchor}}"
+      position="{{tooltipPosition}}"
+      mode="container"
+      bindclose="onTooltipClose"
+      bindpagechange="onPageChange"
+    />
+  </view>
 </view>
 
 <!-- Modal 弹窗（fixed 定位，覆盖全屏） -->

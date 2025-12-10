@@ -35,10 +35,10 @@ ImageAnchorPlugin.prototype.onParse = function (node, parser) {
     const src = node.attrs.src || ''
     const currentIndex = this.imageIndex++
 
-    // 获取锚点配置
+    // 获取锚点配置（扁平结构：每个锚点独立存储）
     const imageAnchors = this.vm.properties.imageAnchors || []
 
-    // 过滤出该图片的所有锚点（支持通过 imageIndex 或 imageSrc 匹配）
+    // 过滤出该图片的所有锚点（通过 imageIndex 或 imageSrc 匹配）
     const matchedAnchors = imageAnchors.filter(anchor => {
       // 优先通过索引匹配
       if (anchor.imageIndex !== undefined && anchor.imageIndex === currentIndex) {
@@ -58,7 +58,7 @@ ImageAnchorPlugin.prototype.onParse = function (node, parser) {
       node.attrs['data-has-anchors'] = 'true'
       node.attrs['data-image-index'] = String(currentIndex)
 
-      // 存储锚点数据到节点（直接使用匹配到的锚点数组）
+      // 存储锚点数据到节点（直接存储匹配到的锚点数组）
       node.anchorData = {
         imageIndex: currentIndex,
         anchors: matchedAnchors
