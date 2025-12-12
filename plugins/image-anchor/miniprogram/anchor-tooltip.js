@@ -131,66 +131,10 @@ Component({
           });
         } else {
           // modal 模式
-          const maxHeight = screenHeight * 0.7;
-          const minHeight = screenHeight * 0.2;
-          console.log('[calculateSwiperHeight] modal模式', { maxHeight, minHeight });
-
-          // 如果包含视频，使用最大高度以确保视频完整显示
-          if (hasVideo) {
-            // 计算视频需要的高度：padding(32) + 视频(4:3比例)
-            const containerWidth = screenWidth - 24; // 减去左右 padding
-            const videoHeight = (containerWidth - 32) * 0.75; // 4:3 比例
-            let swiperHeight = videoHeight + 32; // 加上 padding
-            console.log('[calculateSwiperHeight] 视频高度计算', { containerWidth, videoHeight, swiperHeight });
-
-            // 应用 max 约束
-            swiperHeight = Math.min(swiperHeight, maxHeight - paginationHeight);
-            console.log('[calculateSwiperHeight] 应用max约束后:', swiperHeight);
-
-            if (swiperHeight > 0 && swiperHeight !== this.data.swiperHeight) {
-              console.log('[calculateSwiperHeight] 设置视频 swiperHeight:', swiperHeight);
-              this.setData({ swiperHeight });
-            }
-            return;
-          }
-
-          // 非视频内容：根据内容计算高度
-          const query = this.createSelectorQuery();
-          query.selectAll('.content-edge-' + currentIndex).boundingClientRect();
-          query.exec((res) => {
-            const scrollRects = res[0] || [];
-            console.log('[calculateSwiperHeight] 查询 .content-edge 结果:', scrollRects);
-
-            // 取所有页面内容的最大高度
-            let maxContentHeight = 0;
-            scrollRects.forEach((rect, idx) => {
-              console.log(`[calculateSwiperHeight] 第${idx}页内容高度:`, rect?.height);
-              if (rect && rect.height > maxContentHeight) {
-                maxContentHeight = rect.height;
-              }
-            });
-
-            if (maxContentHeight <= 0) {
-              maxContentHeight = 150;
-              console.log('[calculateSwiperHeight] 内容高度为0，使用默认值:', maxContentHeight);
-            }
-
-            // 计算 swiper 高度
-            let swiperHeight = maxContentHeight;
-            console.log('[calculateSwiperHeight] 初始 swiperHeight:', swiperHeight);
-
-            // 应用 min/max 约束
-            swiperHeight = Math.max(swiperHeight, minHeight - paginationHeight);
-            swiperHeight = Math.min(swiperHeight, maxHeight - paginationHeight);
-            console.log('[calculateSwiperHeight] 应用min/max约束后:', swiperHeight);
-
-            if (swiperHeight > 0 && swiperHeight !== this.data.swiperHeight) {
-              console.log('[calculateSwiperHeight] 设置 swiperHeight:', swiperHeight);
-              this.setData({ swiperHeight });
-            } else {
-              console.log('[calculateSwiperHeight] 高度未变化，跳过设置', { swiperHeight, current: this.data.swiperHeight });
-            }
-          });
+          const height = screenHeight * 0.4;
+          console.log('[calculateSwiperHeight] modal模式', { height });
+          this.setData({ swiperHeight: height });
+          return;
         }
       }, 100);
     },

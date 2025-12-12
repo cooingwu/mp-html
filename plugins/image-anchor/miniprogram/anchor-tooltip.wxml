@@ -5,48 +5,46 @@
 <wxs module="utils" src="./utils.wxs"></wxs>
 <!-- 页面内容模板 -->
 <template name="pageContent">
-  <view class="content-edge-{{index}}" style="height: 100%">
-    <!-- 富文本类型 -->
-    <block wx:if="{{item.type === 'richtext'}}">
-      <view wx:if="{{item.title}}" class="page-title">{{item.title}}</view>
-      <view class="richtext-body">
-        <image wx:if="{{item.image}}" class="page-image" src="{{item.image}}" mode="widthFix" data-src="{{item.image}}" bindtap="onImageTap" />
-        <text wx:if="{{item.content}}" class="page-text">{{item.content}}</text>
+  <!-- 富文本类型 -->
+  <block wx:if="{{item.type === 'richtext'}}">
+    <view wx:if="{{item.title}}" class="page-title">{{item.title}}</view>
+    <view class="richtext-body">
+      <image wx:if="{{item.image}}" class="page-image" src="{{item.image}}" mode="widthFix" data-src="{{item.image}}" bindtap="onImageTap" />
+      <text wx:if="{{item.content}}" class="page-text">{{item.content}}</text>
+    </view>
+  </block>
+  <!-- 视频类型 -->
+  <block wx:elif="{{item.type === 'video'}}">
+    <video wx:if="{{item.video}}" class="page-video" src="{{item.video}}" poster="{{item.videoCover}}" controls="{{true}}" show-center-play-btn="{{true}}" object-fit="contain" bindplay="onVideoPlay" />
+  </block>
+  <!-- 音频类型 -->
+  <block wx:elif="{{item.type === 'audio'}}">
+    <view class="audio-container">
+      <image wx:if="{{item.audioCover}}" class="audio-cover" src="{{item.audioCover}}" mode="aspectFill" />
+      <view wx:else class="audio-cover-placeholder">
+        <text class="audio-icon">♫</text>
       </view>
-    </block>
-    <!-- 视频类型 -->
-    <block wx:elif="{{item.type === 'video'}}">
-      <video wx:if="{{item.video}}" class="page-video" src="{{item.video}}" poster="{{item.videoCover}}" controls="{{true}}" show-center-play-btn="{{true}}" object-fit="contain" bindplay="onVideoPlay" />
-    </block>
-    <!-- 音频类型 -->
-    <block wx:elif="{{item.type === 'audio'}}">
-      <view class="audio-container">
-        <image wx:if="{{item.audioCover}}" class="audio-cover" src="{{item.audioCover}}" mode="aspectFill" />
-        <view wx:else class="audio-cover-placeholder">
-          <text class="audio-icon">♫</text>
-        </view>
-        <view class="audio-info">
-          <view class="audio-title">{{item.audioTitle || '音频'}}</view>
-          <view class="audio-controls">
-            <view class="play-btn" bindtap="toggleAudio" data-index="{{index}}">
-              <text class="play-icon">{{isCurrentPlaying ? '⏸' : '▶'}}</text>
+      <view class="audio-info">
+        <view class="audio-title">{{item.audioTitle || '音频'}}</view>
+        <view class="audio-controls">
+          <view class="play-btn" bindtap="toggleAudio" data-index="{{index}}">
+            <text class="play-icon">{{isCurrentPlaying ? '⏸' : '▶'}}</text>
+          </view>
+          <view class="audio-progress">
+            <view class="progress-bar">
+              <view class="progress-fill" style="width: {{progressPercent}}%"></view>
             </view>
-            <view class="audio-progress">
-              <view class="progress-bar">
-                <view class="progress-fill" style="width: {{progressPercent}}%"></view>
-              </view>
-              <view class="time-display">
-                <view>{{currentTimeStr}} / {{durationStr}}</view>
-              </view>
+            <view class="time-display">
+              <view>{{currentTimeStr}} / {{durationStr}}</view>
             </view>
           </view>
         </view>
       </view>
-    </block>
-    <!-- 空状态 -->
-    <view class="empty-state" wx:else>
-      <text>暂无内容</text>
     </view>
+  </block>
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <text>暂无内容</text>
   </view>
 </template>
 <view class="tooltip-container {{mode}} {{isPc ? 'is-pc' : 'is-mobile'}}" catchtap="stopPropagation">

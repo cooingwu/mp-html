@@ -41,7 +41,6 @@
 .anchor-point.image {
   background: transparent;
   border-radius: 0;
-  overflow: auto;
   box-shadow: none;
 }
 
