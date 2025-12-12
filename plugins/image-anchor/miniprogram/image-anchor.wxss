@@ -170,3 +170,25 @@
   margin: 0 auto;
   padding: 0;
 }
+
+/* ==================== 视频全屏时隐藏弹窗 ==================== */
+/* 视频全屏时隐藏容器模式的弹窗 */
+.tooltip-wrapper.video-fullscreen {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 视频全屏时隐藏 Modal 模式的遮罩和内容 */
+.modal-overlay.video-fullscreen {
+  background: transparent;
+  pointer-events: none;
+}
+
+.modal-overlay.video-fullscreen .modal-mask {
+  opacity: 0;
+}
+
+.modal-overlay.video-fullscreen .modal-content {
+  opacity: 0;
+  pointer-events: none;
+}

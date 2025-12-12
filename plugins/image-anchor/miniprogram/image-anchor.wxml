@@ -40,7 +40,7 @@
 
   <!-- 容器内弹窗 - 绝对定位，相对于锚点位置 -->
   <view
-    class="tooltip-wrapper position-{{tooltipPosition}} {{tooltipVisible ? 'visible' : ''}} {{tooltipClosing ? 'closing' : ''}}"
+    class="tooltip-wrapper position-{{tooltipPosition}} {{tooltipVisible ? 'visible' : ''}} {{tooltipClosing ? 'closing' : ''}} {{isVideoFullscreen ? 'video-fullscreen' : ''}}"
     style="{{tooltipPosition === 'bottom' ? 'top: ' + (anchorY + tooltipOffset) + '%;' : 'bottom: ' + (100 - anchorY + tooltipOffset) + '%;'}}"
     wx:if="{{mode === 'container' && activeAnchor}}"
     catchtap="stopPropagation"
@@ -53,13 +53,14 @@
       bindclose="onTooltipClose"
       bindpagechange="onPageChange"
       bindimgtap="onTooltipImgTap"
+      bindvideofullscreenchange="onVideoFullscreenChange"
       isPc="{{isPc}}"
     />
   </view>
 </view>
 
 <!-- Modal 弹窗（fixed 定位，覆盖全屏） -->
-<view class="modal-overlay {{modalClosing ? 'closing' : ''}}" wx:if="{{showModal}}" catchtap="onMaskTap">
+<view class="modal-overlay {{modalClosing ? 'closing' : ''}} {{isVideoFullscreen ? 'video-fullscreen' : ''}}" wx:if="{{showModal}}" catchtap="onMaskTap">
   <view class="modal-mask"></view>
   <view class="modal-content {{isPc ? 'is-pc' : ''}} {{modalClosing ? 'closing' : ''}}" catchtap="stopPropagation">
     <anchor-tooltip
@@ -70,6 +71,7 @@
       bindclose="onTooltipClose"
       bindpagechange="onPageChange"
       bindimgtap="onTooltipImgTap"
+      bindvideofullscreenchange="onVideoFullscreenChange"
     />
   </view>
 </view>

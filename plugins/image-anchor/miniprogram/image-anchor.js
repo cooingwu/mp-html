@@ -45,6 +45,7 @@ Component({
     modalClosing: false, // Modal 弹窗是否正在关闭（用于关闭动画）
     showMask: false, // 是否显示遮罩层
     isPc: false, // 是否是 PC 端
+    isVideoFullscreen: false, // 视频是否全屏
   },
 
   lifetimes: {
@@ -250,6 +251,18 @@ Component({
       this.triggerEvent('pagechange', {
         ...e.detail,
         anchor: this.data.activeAnchor,
+      });
+    },
+
+    /**
+     * @description 视频全屏状态变化事件
+     * @param {Event} e 全屏状态变化事件对象
+     */
+    onVideoFullscreenChange(e) {
+      const { fullScreen } = e.detail;
+      console.log('[image-anchor] 视频全屏状态变化:', fullScreen);
+      this.setData({
+        isVideoFullscreen: fullScreen,
       });
     },
 

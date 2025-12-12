@@ -253,6 +253,17 @@ Component({
       // 可以在此处理视频播放统计等
     },
 
+    /**
+     * @description 视频全屏状态变化事件
+     * @param {Event} e 全屏状态变化事件对象
+     */
+    onVideoFullscreenChange(e) {
+      const { fullScreen } = e.detail;
+      console.log('[onVideoFullscreenChange] 全屏状态变化:', fullScreen);
+      // 触发事件通知父组件
+      this.triggerEvent('videofullscreenchange', { fullScreen });
+    },
+
     audioContext: null, // 音频上下文
 
     /**
