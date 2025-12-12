@@ -16,7 +16,7 @@
     </block>
     <!-- 视频类型 -->
     <block wx:elif="{{item.type === 'video'}}">
-      <video wx:if="{{item.video}}" class="page-video" src="{{item.video}}" poster="{{item.videoCover}}" controls="{{true}}" show-center-play-btn="{{true}}" object-fit="contain" bindplay="onVideoPlay" />
+      <video wx:if="{{item.video}}" class="page-video" src="{{item.video}}" poster="{{item.videoCover}}" controls="{{true}}" show-center-play-btn="{{true}}" object-fit="contain" bindplay="onVideoPlay" bindfullscreenchange="onVideoFullscreenChange" />
     </block>
     <!-- 音频类型 -->
     <block wx:elif="{{item.type === 'audio'}}">
