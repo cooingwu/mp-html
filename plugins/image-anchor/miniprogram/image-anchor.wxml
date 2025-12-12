@@ -17,6 +17,13 @@
     bindtap="onImageTap"
   />
 
+  <!-- 容器内透明遮罩层 - 位于锚点层下方，图片上方 -->
+  <view
+    class="container-mask {{showMask ? 'visible' : ''}}"
+    wx:if="{{showMask || tooltipClosing}}"
+    catchtap="onContainerMaskTap"
+  ></view>
+
   <!-- 锚点层 -->
   <view class="anchors-layer" wx:if="{{imageLoaded && anchors.length > 0}}">
     <anchor-point
@@ -31,30 +38,38 @@
     />
   </view>
 
-  <!-- 容器内弹窗 - 绝对定位覆盖图片 -->
+  <!-- 容器内弹窗 - 绝对定位，相对于锚点位置 -->
   <view
-    class="tooltip-wrapper position-{{tooltipPosition}}"
+    class="tooltip-wrapper position-{{tooltipPosition}} {{tooltipVisible ? 'visible' : ''}} {{tooltipClosing ? 'closing' : ''}}"
+    style="{{tooltipPosition === 'bottom' ? 'top: ' + (anchorY + tooltipOffset) + '%;' : 'bottom: ' + (100 - anchorY + tooltipOffset) + '%;'}}"
     wx:if="{{mode === 'container' && activeAnchor}}"
+    catchtap="stopPropagation"
   >
     <anchor-tooltip
       anchor="{{activeAnchor}}"
       position="{{tooltipPosition}}"
       mode="container"
+      show-close="{{!showMask && !showModal}}"
       bindclose="onTooltipClose"
       bindpagechange="onPageChange"
+      bindimgtap="onTooltipImgTap"
+      isPc="{{isPc}}"
     />
   </view>
 </view>
 
 <!-- Modal 弹窗（fixed 定位，覆盖全屏） -->
-<view class="modal-overlay" wx:if="{{showModal}}" catchtap="onMaskTap">
+<view class="modal-overlay {{modalClosing ? 'closing' : ''}}" wx:if="{{showModal}}" catchtap="onMaskTap">
   <view class="modal-mask"></view>
-  <view class="modal-content {{isPc ? 'is-pc' : ''}}" catchtap="stopPropagation">
+  <view class="modal-content {{isPc ? 'is-pc' : ''}} {{modalClosing ? 'closing' : ''}}" catchtap="stopPropagation">
     <anchor-tooltip
       anchor="{{activeAnchor}}"
       mode="modal"
+      show-close="{{false}}"
+      isPc="{{isPc}}"
       bindclose="onTooltipClose"
       bindpagechange="onPageChange"
+      bindimgtap="onTooltipImgTap"
     />
   </view>
 </view>

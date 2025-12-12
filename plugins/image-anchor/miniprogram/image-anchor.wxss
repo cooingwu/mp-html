@@ -24,13 +24,31 @@
   right: 0;
   bottom: 0;
   pointer-events: none;
+  z-index: 10;
 }
 
 .anchors-layer anchor-point {
   pointer-events: auto;
 }
 
-/* 容器内弹窗 - 绝对定位，最高 40% */
+/* 容器内透明遮罩层 - 位于锚点层下方，图片上方 */
+.container-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.container-mask.visible {
+  opacity: 1;
+}
+
+/* 容器内弹窗 - 绝对定位，相对于锚点位置 */
 .tooltip-wrapper {
   position: absolute;
   left: 0;
@@ -39,19 +57,32 @@
   pointer-events: auto;
   padding: 8px;
   box-sizing: border-box;
-  max-height: 40%;
+  max-height: 30vh;
+  height: 30vh; /* 设置固定高度，让子元素的 100% 生效 */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* 弹窗在下方（锚点在图片上半部分） */
-.tooltip-wrapper.position-bottom {
-  bottom: 0;
-  top: auto;
-}
-
-/* 弹窗在上方（锚点在图片下半部分） */
+/* 弹窗在上方时，动画方向相反 */
 .tooltip-wrapper.position-top {
-  top: 0;
-  bottom: auto;
+  transform: translateY(-20px);
+}
+
+/* 弹窗显示状态 */
+.tooltip-wrapper.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 弹窗关闭动画 */
+.tooltip-wrapper.closing {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.tooltip-wrapper.position-top.closing {
+  transform: translateY(-20px);
 }
 
 /* Modal 遮罩层 */
@@ -67,6 +98,11 @@
   justify-content: flex-end;
 }
 
+/* Modal 关闭动画 - 遮罩淡出 */
+.modal-overlay.closing .modal-mask {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
 .modal-mask {
   position: absolute;
   top: 0;
@@ -74,7 +110,7 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  animation: fadeIn 0.2s ease-out;
+  animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
@@ -86,6 +122,15 @@
   }
 }
 
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 .modal-content {
   position: relative;
   z-index: 1;
@@ -93,6 +138,30 @@
   max-height: 70vh;
   padding: 0 12px;
   box-sizing: border-box;
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Modal 关闭动画 - 内容滑出 */
+.modal-content.closing {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
 }
 
 /* PC 端适配 - 通过 JS 添加 is-pc class */
