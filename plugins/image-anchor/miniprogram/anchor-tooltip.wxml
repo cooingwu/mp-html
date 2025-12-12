@@ -36,9 +36,7 @@
                 <view class="progress-fill" style="width: {{progressPercent}}%"></view>
               </view>
               <view class="time-display">
-                <text>{{currentTimeStr}}</text>
-                <text>/</text>
-                <text>{{durationStr}}</text>
+                <view>{{currentTimeStr}} / {{durationStr}}</view>
               </view>
             </view>
           </view>

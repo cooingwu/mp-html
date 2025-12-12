@@ -107,6 +107,13 @@
   aspect-ratio: 4 / 3;
   border-radius: 6px;
   background: #000;
+  z-index: 1000;
+}
+
+.modal .page-video {
+  aspect-ratio: 4/3;
+  height: 48vw;
+  max-height: 60vh;
 }
 
 /* ==================== 音频 ==================== */

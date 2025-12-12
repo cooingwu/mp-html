@@ -1,0 +1,24 @@
+/**
+ * WXS 工具函数
+ */
+module.exports = {
+  /**
+   * 格式化时间（秒数 -> mm:ss）
+   */
+  formatTime: function(seconds) {
+    if (!seconds || seconds < 1) return '00:00';
+    var mins = Math.floor(seconds / 60);
+    var secs = Math.floor(seconds % 60);
+    if (mins < 10) {
+      mins = '0' + mins;
+    } else {
+      mins = '' + mins;
+    }
+    if (secs < 10) {
+      secs = '0' + secs;
+    } else {
+      secs = '' + secs;
+    }
+    return mins + ':' + secs;
+  }
+}

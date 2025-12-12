@@ -62,20 +62,17 @@ Component({
   observers: {
     anchor: function (anchor) {
       if (anchor && anchor.tooltipPages) {
-        // 处理云存储路径，获取临时 URL
-        this.processCloudUrls(anchor.tooltipPages).then((processedPages) => {
-          this.setData(
-            {
-              pages: processedPages,
-              currentIndex: 0,
-              swiperHeight: 0,
-            },
-            () => {
-              // 内容更新后计算高度
-              this.calculateSwiperHeight();
-            }
-          );
-        });
+        this.setData(
+          {
+            pages: anchor.tooltipPages,
+            currentIndex: 0,
+            swiperHeight: 0,
+          },
+          () => {
+            // 内容更新后计算高度
+            this.calculateSwiperHeight();
+          }
+        );
       } else {
         this.setData({
           pages: [],
@@ -94,90 +91,6 @@ Component({
   },
 
   methods: {
-    /**
-     * @description 处理云存储路径，获取临时 URL
-     * @param {Array} pages 解读页列表
-     * @returns {Promise<Array>} 处理后的解读页列表
-     */
-    async processCloudUrls(pages) {
-      if (!pages || pages.length === 0) return pages;
-
-      // 收集所有需要转换的云存储路径
-      const cloudPaths = [];
-      pages.forEach((page) => {
-        if (page.image && page.image.startsWith('cloud://')) {
-          cloudPaths.push(page.image);
-        }
-        if (page.video && page.video.startsWith('cloud://')) {
-          cloudPaths.push(page.video);
-        }
-        if (page.videoCover && page.videoCover.startsWith('cloud://')) {
-          cloudPaths.push(page.videoCover);
-        }
-        if (page.audio && page.audio.startsWith('cloud://')) {
-          cloudPaths.push(page.audio);
-        }
-        if (page.audioCover && page.audioCover.startsWith('cloud://')) {
-          cloudPaths.push(page.audioCover);
-        }
-      });
-
-      if (cloudPaths.length === 0) return pages;
-
-      try {
-        // 获取临时 URL
-        const res = await wx.cloud.getTempFileURL({ fileList: cloudPaths });
-
-        // 构建 fileID -> tempFileURL 的映射
-        const urlMap = {};
-        res.fileList.forEach((item) => {
-          if (item.tempFileURL) {
-            urlMap[item.fileID] = item.tempFileURL;
-          }
-        });
-
-        // 手动深拷贝，避免 JSON 序列化问题
-        const processedPages = pages.map((page) => {
-          const newPage = {
-            id: page.id,
-            type: page.type,
-            title: page.title,
-            content: page.content,
-            image: page.image,
-            video: page.video,
-            videoCover: page.videoCover,
-            audio: page.audio,
-            audioCover: page.audioCover,
-            audioTitle: page.audioTitle,
-          };
-
-          // 替换云存储路径
-          if (newPage.image && urlMap[newPage.image]) {
-            newPage.image = urlMap[newPage.image];
-          }
-          if (newPage.video && urlMap[newPage.video]) {
-            newPage.video = urlMap[newPage.video];
-          }
-          if (newPage.videoCover && urlMap[newPage.videoCover]) {
-            newPage.videoCover = urlMap[newPage.videoCover];
-          }
-          if (newPage.audio && urlMap[newPage.audio]) {
-            newPage.audio = urlMap[newPage.audio];
-          }
-          if (newPage.audioCover && urlMap[newPage.audioCover]) {
-            newPage.audioCover = urlMap[newPage.audioCover];
-          }
-
-          return newPage;
-        });
-
-        return processedPages;
-      } catch (err) {
-        console.error('获取云存储临时 URL 失败:', err);
-        return pages;
-      }
-    },
-
     /**
      * @description 计算 swiper 的动态高度
      */
@@ -328,11 +241,14 @@ Component({
         this.destroyAudio();
 
         // PC 端：更新 currentIndex，swiper 通过 current 属性响应
-        this.setData({
-          currentIndex: index,
-        }, () => {
-          this.calculateSwiperHeight();
-        });
+        this.setData(
+          {
+            currentIndex: index,
+          },
+          () => {
+            this.calculateSwiperHeight();
+          }
+        );
 
         // 触发页面切换事件
         this.triggerEvent('pagechange', {
@@ -357,11 +273,14 @@ Component({
           this.destroyAudio();
 
           // 更新 currentIndex
-          this.setData({
-            currentIndex: current,
-          }, () => {
-            this.calculateSwiperHeight();
-          });
+          this.setData(
+            {
+              currentIndex: current,
+            },
+            () => {
+              this.calculateSwiperHeight();
+            }
+          );
 
           // 触发页面切换事件
           this.triggerEvent('pagechange', {
@@ -394,8 +313,9 @@ Component({
 
     /**
      * @description 初始化音频播放器
+     * @param {Boolean} autoPlay 是否自动播放
      */
-    initAudio() {
+    initAudio(autoPlay = false) {
       const { pages, currentIndex } = this.data;
       const currentPage = pages[currentIndex];
       if (!currentPage || currentPage.type !== 'audio' || !currentPage.audio) return;
@@ -406,26 +326,44 @@ Component({
       audioContext.src = currentPage.audio;
 
       audioContext.onCanplay(() => {
+        console.log('[initAudio] 音频准备就绪, duration:', audioContext.duration);
         this.setData({
           audioDuration: audioContext.duration,
         });
+        // 如果需要自动播放
+        if (autoPlay) {
+          audioContext.play();
+        }
       });
 
       audioContext.onTimeUpdate(() => {
-        this.setData({
+        const updateData = {
           audioCurrentTime: audioContext.currentTime,
-        });
+        };
+        // 移动端 duration 可能在 onCanplay 时还未获取到，需要在播放过程中更新
+        if (audioContext.duration > 0 && this.data.audioDuration !== audioContext.duration) {
+          updateData.audioDuration = audioContext.duration;
+        }
+        this.setData(updateData);
       });
 
       audioContext.onPlay(() => {
-        this.setData({ isPlaying: true });
+        console.log('[initAudio] 开始播放, duration:', audioContext.duration);
+        const updateData = { isPlaying: true };
+        // 移动端可能在播放开始时才能获取到 duration
+        if (audioContext.duration > 0 && this.data.audioDuration !== audioContext.duration) {
+          updateData.audioDuration = audioContext.duration;
+        }
+        this.setData(updateData);
       });
 
       audioContext.onPause(() => {
+        console.log('[initAudio] 暂停');
         this.setData({ isPlaying: false });
       });
 
       audioContext.onEnded(() => {
+        console.log('[initAudio] 播放结束');
         this.setData({
           isPlaying: false,
           audioCurrentTime: 0,
@@ -433,7 +371,7 @@ Component({
       });
 
       audioContext.onError((err) => {
-        console.error('音频播放错误', err);
+        console.error('[initAudio] 音频播放错误', err);
         this.setData({ isPlaying: false });
       });
 
@@ -444,8 +382,12 @@ Component({
      * @description 播放/暂停音频
      */
     toggleAudio() {
+      console.log('[toggleAudio] 点击, isPlaying:', this.data.isPlaying, 'audioContext:', !!this.audioContext);
+
       if (!this.audioContext) {
-        this.initAudio();
+        // 初始化并自动播放
+        this.initAudio(true);
+        return;
       }
 
       if (this.data.isPlaying) {
