@@ -5,7 +5,7 @@
 <wxs module="utils" src="./utils.wxs"></wxs>
 <!-- 页面内容模板 -->
 <template name="pageContent">
-  <view class="content-edge-{{index}}">
+  <view class="content-edge-{{index}}" style="height: 100%">
     <!-- 富文本类型 -->
     <block wx:if="{{item.type === 'richtext'}}">
       <view wx:if="{{item.title}}" class="page-title">{{item.title}}</view>
