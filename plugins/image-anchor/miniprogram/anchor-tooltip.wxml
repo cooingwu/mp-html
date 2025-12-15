@@ -28,7 +28,7 @@
         <view class="audio-title">{{item.audioTitle || '音频'}}</view>
         <view class="audio-controls">
           <view class="play-btn" bindtap="toggleAudio" data-index="{{index}}">
-            <text class="play-icon">{{isCurrentPlaying ? '⏸' : '▶'}}</text>
+            <view class="play-icon {{isCurrentPlaying ? 'checked' : ''}} {{isPc ? 'is-pc' : ''}}"></view>
           </view>
           <view class="audio-progress">
             <view class="progress-bar">
@@ -51,16 +51,16 @@
   <!-- 关闭按钮 -->
   <view class="close-btn" wx:if="{{showClose}}" bindtap="onClose">×</view>
   <!-- ==================== 移动端：使用 swiper ==================== -->
-  <swiper wx:if="{{!isPc}}" class="tooltip-swiper" style="{{swiperHeight > 0 ? 'height: ' + swiperHeight + 'px;' : ''}}" bindchange="onSwiperChange" indicator-dots="{{pages.length > 1}}" indicator-color="rgba(0, 0, 0, 0.3)" indicator-active-color="#ff4d4f">
+  <swiper wx:if="{{!isPc}}" class="tooltip-swiper" style="{{swiperHeight > 0 ? 'height: ' + swiperHeight + 'px;' : ''}}" bindchange="onSwiperChange" indicator-dots="{{pages.length > 1}}" indicator-color="rgba(0, 0, 0, 0.3)" indicator-active-color="#12233c">
     <swiper-item wx:for="{{pages}}" wx:key="id" class="swiper-page">
       <scroll-view scroll-y class="page-scroll" style="{{swiperHeight > 0 ? 'height: ' + swiperHeight + 'px;' : ''}}">
-        <template is="pageContent" data="{{item: item, index: index, isCurrentPlaying: index === currentIndex && isPlaying, progressPercent: index === currentIndex && audioDuration > 0 ? (audioCurrentTime / audioDuration * 100) : 0, currentTimeStr: index === currentIndex ? utils.formatTime(audioCurrentTime) : '00:00', durationStr: index === currentIndex ? utils.formatTime(audioDuration) : '00:00'}}" />
+        <template is="pageContent" data="{{item: item, index: index, isCurrentPlaying: index === currentIndex && isPlaying, progressPercent: index === currentIndex && audioDuration > 0 ? (audioCurrentTime / audioDuration * 100) : 0, currentTimeStr: index === currentIndex ? utils.formatTime(audioCurrentTime) : '00:00', durationStr: index === currentIndex ? utils.formatTime(audioDuration) : '00:00', isPc: isPc}}" />
       </scroll-view>
     </swiper-item>
   </swiper>
   <!-- ==================== PC端：直接显示当前页 ==================== -->
   <scroll-view wx:if="{{isPc && pages.length > 0}}" scroll-y class="page-scroll pc-scroll" style="{{swiperHeight > 0 ? 'height: ' + swiperHeight + 'px;' : ''}}">
-    <template is="pageContent" data="{{item: pages[currentIndex], index: currentIndex, isCurrentPlaying: isPlaying, progressPercent: audioDuration > 0 ? (audioCurrentTime / audioDuration * 100) : 0, currentTimeStr: utils.formatTime(audioCurrentTime), durationStr: utils.formatTime(audioDuration)}}" />
+    <template is="pageContent" data="{{item: pages[currentIndex], index: currentIndex, isCurrentPlaying: isPlaying, progressPercent: audioDuration > 0 ? (audioCurrentTime / audioDuration * 100) : 0, currentTimeStr: utils.formatTime(audioCurrentTime), durationStr: utils.formatTime(audioDuration), isPc: isPc}}" />
   </scroll-view>
   <!-- 空页面状态 -->
   <view class="empty-state" wx:if="{{pages.length === 0}}">
