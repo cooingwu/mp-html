@@ -5,6 +5,8 @@
  * 移动端：swiper滑动翻页，显示原生dots
  */
 
+import { checkIsPc, checkIsSkyline } from './utils';
+
 Component({
   properties: {
     /**
@@ -40,14 +42,6 @@ Component({
       type: Boolean,
       value: true,
     },
-
-    /**
-     * @description 是否是 PC 端
-     */
-    isPc: {
-      type: Boolean,
-      value: false,
-    },
   },
 
   data: {
@@ -57,6 +51,8 @@ Component({
     isPlaying: false, // 音频是否播放中
     audioDuration: 0, // 音频时长
     audioCurrentTime: 0, // 音频当前时间
+    isPc: false, // 是否是 PC 端
+    isSkyline: false, // 是否使用 Skyline 渲染引擎
   },
 
   observers: {
@@ -84,9 +80,21 @@ Component({
   },
 
   lifetimes: {
+    attached() {
+      this.setData({
+        isPc: checkIsPc(),
+        isSkyline: checkIsSkyline(),
+      });
+    },
     detached() {
       // 清理音频资源
       this.destroyAudio();
+    },
+  },
+
+  pageLifetimes: {
+    resize() {
+      this.calculateSwiperHeight();
     },
   },
 

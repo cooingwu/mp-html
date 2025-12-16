@@ -9,7 +9,7 @@
   <block wx:if="{{item.type === 'richtext'}}">
     <view wx:if="{{item.title}}" class="page-title">{{item.title}}</view>
     <view class="richtext-body">
-      <image wx:if="{{item.image}}" class="page-image" src="{{item.image}}" mode="widthFix" data-src="{{item.image}}" bindtap="onImageTap" />
+      <image wx:if="{{item.image}}" class="page-image" src="{{item.image}}" mode="aspectFit" data-src="{{item.image}}" bindtap="onImageTap" />
       <text wx:if="{{item.content}}" class="page-text">{{item.content}}</text>
     </view>
   </block>
@@ -28,7 +28,7 @@
         <view class="audio-title">{{item.audioTitle || '音频'}}</view>
         <view class="audio-controls">
           <view class="play-btn" bindtap="toggleAudio" data-index="{{index}}">
-            <view class="play-icon {{isCurrentPlaying ? 'checked' : ''}} {{isPc ? 'is-pc' : ''}}"></view>
+            <view class="play-icon {{isCurrentPlaying ? 'checked' : ''}}"></view>
           </view>
           <view class="audio-progress">
             <view class="progress-bar">
@@ -47,20 +47,20 @@
     <text>暂无内容</text>
   </view>
 </template>
-<view class="tooltip-container {{mode}} {{isPc ? 'is-pc' : 'is-mobile'}}" catchtap="stopPropagation">
+<view class="tooltip-container {{mode}} {{isPc ? 'is-pc' : 'is-mobile'}} {{isSkyline ? 'is-skyline': 'is-webview'}}" catchtap="stopPropagation">
   <!-- 关闭按钮 -->
   <view class="close-btn" wx:if="{{showClose}}" bindtap="onClose">×</view>
   <!-- ==================== 移动端：使用 swiper ==================== -->
-  <swiper wx:if="{{!isPc}}" class="tooltip-swiper" style="{{swiperHeight > 0 ? 'height: ' + swiperHeight + 'px;' : ''}}" bindchange="onSwiperChange" indicator-dots="{{pages.length > 1}}" indicator-color="rgba(0, 0, 0, 0.3)" indicator-active-color="#12233c">
+  <swiper wx:if="{{!isPc}}" class="tooltip-swiper" style="{{swiperHeight > 0 ? 'height: ' + swiperHeight + 'px;' : ''}}" bindchange="onSwiperChange" indicator-dots="{{pages.length > 1}}" indicator-color="rgba(0, 0, 0, 0.3)" indicator-active-color="#1c1e1b">
     <swiper-item wx:for="{{pages}}" wx:key="id" class="swiper-page">
       <scroll-view scroll-y class="page-scroll" style="{{swiperHeight > 0 ? 'height: ' + swiperHeight + 'px;' : ''}}">
-        <template is="pageContent" data="{{item: item, index: index, isCurrentPlaying: index === currentIndex && isPlaying, progressPercent: index === currentIndex && audioDuration > 0 ? (audioCurrentTime / audioDuration * 100) : 0, currentTimeStr: index === currentIndex ? utils.formatTime(audioCurrentTime) : '00:00', durationStr: index === currentIndex ? utils.formatTime(audioDuration) : '00:00', isPc: isPc}}" />
+        <template is="pageContent" data="{{item: item, index: index, isCurrentPlaying: index === currentIndex && isPlaying, progressPercent: index === currentIndex && audioDuration > 0 ? (audioCurrentTime / audioDuration * 100) : 0, currentTimeStr: index === currentIndex ? utils.formatTime(audioCurrentTime) : '00:00', durationStr: index === currentIndex ? utils.formatTime(audioDuration) : '00:00'}}" />
       </scroll-view>
     </swiper-item>
   </swiper>
   <!-- ==================== PC端：直接显示当前页 ==================== -->
   <scroll-view wx:if="{{isPc && pages.length > 0}}" scroll-y class="page-scroll pc-scroll" style="{{swiperHeight > 0 ? 'height: ' + swiperHeight + 'px;' : ''}}">
-    <template is="pageContent" data="{{item: pages[currentIndex], index: currentIndex, isCurrentPlaying: isPlaying, progressPercent: audioDuration > 0 ? (audioCurrentTime / audioDuration * 100) : 0, currentTimeStr: utils.formatTime(audioCurrentTime), durationStr: utils.formatTime(audioDuration), isPc: isPc}}" />
+    <template is="pageContent" data="{{item: pages[currentIndex], index: currentIndex, isCurrentPlaying: isPlaying, progressPercent: audioDuration > 0 ? (audioCurrentTime / audioDuration * 100) : 0, currentTimeStr: utils.formatTime(audioCurrentTime), durationStr: utils.formatTime(audioDuration)}}" />
   </scroll-view>
   <!-- 空页面状态 -->
   <view class="empty-state" wx:if="{{pages.length === 0}}">

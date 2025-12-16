@@ -2,6 +2,7 @@
  * @fileoverview 图片锚点容器组件
  * 用于在图片上显示锚点，并管理解读弹窗
  */
+import { checkIsPc, checkIsSkyline } from './utils';
 
 Component({
   options: {
@@ -45,32 +46,29 @@ Component({
     modalClosing: false, // Modal 弹窗是否正在关闭（用于关闭动画）
     showMask: false, // 是否显示遮罩层
     isPc: false, // 是否是 PC 端
+    isSkyline: false, // 是否使用 Skyline 渲染引擎
     isVideoFullscreen: false, // 视频是否全屏
   },
 
   lifetimes: {
     attached() {
       // 判断是否是 PC 端
-      this.checkIsPc();
+      this.setData({
+        isPc: checkIsPc(),
+        isSkyline: checkIsSkyline(),
+      })
       // 获取根组件的配置
       this.initFromRoot();
     },
   },
 
-  methods: {
-    /**
-     * @description 判断是否是 PC 端
-     */
-    checkIsPc() {
-      try {
-        const deviceInfo = wx.getDeviceInfo();
-        const isPc = deviceInfo.platform === 'windows' || deviceInfo.platform === 'mac' || deviceInfo.platform === 'ohos_pc';
-        this.setData({ isPc });
-      } catch (e) {
-        console.error('获取系统信息失败', e);
-      }
-    },
+  pageLifetimes: {
+    resize() {
+      this.initImageDimensions();
+    }
+  },
 
+  methods: {
     /**
      * @description 从节点数据获取配置
      */
@@ -103,7 +101,15 @@ Component({
      */
     onImageLoad(e) {
       const { width, height } = e.detail;
-      
+      console.log('[image-anchor] 图片加载完成，原始尺寸：', width, height);
+
+      this.initImageDimensions();
+
+      // 触发原有的图片加载事件
+      this.triggerEvent('imgload', e.detail);
+    },
+
+    initImageDimensions() {
       // 获取图片实际显示尺寸
       const query = this.createSelectorQuery();
       query
@@ -115,12 +121,10 @@ Component({
               imageWidth: rect.width,
               imageHeight: rect.height,
             });
+            console.log('[image-anchor] 图片实际显示尺寸：', rect.width, rect.height);
           }
         })
         .exec();
-
-      // 触发原有的图片加载事件
-      this.triggerEvent('imgload', e.detail);
     },
 
     /**

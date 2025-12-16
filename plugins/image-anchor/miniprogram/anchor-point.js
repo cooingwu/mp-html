@@ -3,6 +3,8 @@
  * 用于在图片上显示单个可点击的锚点
  */
 
+import { checkIsPc, checkIsSkyline } from "./utils"
+
 // 内嵌 SVG 图标映射（base64 编码）
 const ICON_SVG_MAP = {
   'info-circle': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='{{COLOR}}'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E",
@@ -69,7 +71,7 @@ Component({
     imageHeight: {
       type: Number,
       value: 0
-    }
+    },
   },
 
   data: {
@@ -81,8 +83,9 @@ Component({
     iconSvg: '', // 图标 SVG
     iconColor: '#ffffff',
     labelPosition: 'right', // 说明文本位置
-    isPC: false,
-    pulseColor: '#ff4d4f' // 脉冲动画颜色
+    pulseColor: '#ff4d4f', // 脉冲动画颜色
+    isPc: false, // 是否是 PC 端
+    isSkyline: false, // 是否使用 Skyline 渲染引擎
   },
 
   observers: {
@@ -96,9 +99,9 @@ Component({
     attached() {
       // 检测平台
       try {
-        const systemInfo = wx.getSystemInfoSync()
         this.setData({
-          isPC: systemInfo.platform === 'windows' || systemInfo.platform === 'mac'
+          isPC: checkIsPc(),
+          isSkyline: checkIsSkyline(),
         })
       } catch (e) {
         console.error('获取系统信息失败', e)
@@ -137,7 +140,6 @@ Component({
         styleType = preset.type || 'shape'
 
         if (preset.type === 'image' && preset.image) {
-          // 转换云存储路径
           styleImage = preset.image
         } else if (preset.type === 'shape' && preset.shape) {
           const shape = preset.shape
@@ -158,7 +160,6 @@ Component({
         // 使用自定义样式或默认样式
         if (anchor.style.customImage) {
           styleType = 'image'
-          // 转换云存储路径
           styleImage = anchor.style.customImage
         } else {
           styleType = 'default'
@@ -242,16 +243,6 @@ Component({
 
         this.setData({ labelPosition: validPosition })
       })
-    },
-
-    /**
-     * @description 计算说明文本位置（已弃用，保留兼容）
-     * @param {Object} anchor 锚点数据
-     * @returns {String} 位置
-     */
-    calculateLabelPosition(anchor) {
-      if (!anchor.label || !anchor.label.text) return 'right'
-      return anchor.label.position || 'right'
     },
 
     /**
