@@ -63,9 +63,8 @@ Component({
      */
     checkIsPc() {
       try {
-        const systemInfo = wx.getSystemInfoSync();
-        // 通过屏幕宽度判断，大于 768px 认为是 PC 端
-        const isPc = systemInfo.screenWidth >= 768;
+        const deviceInfo = wx.getDeviceInfo();
+        const isPc = deviceInfo.platform === 'windows' || deviceInfo.platform === 'mac' || deviceInfo.platform === 'ohos_pc';
         this.setData({ isPc });
       } catch (e) {
         console.error('获取系统信息失败', e);
@@ -104,7 +103,7 @@ Component({
      */
     onImageLoad(e) {
       const { width, height } = e.detail;
-
+      
       // 获取图片实际显示尺寸
       const query = this.createSelectorQuery();
       query
