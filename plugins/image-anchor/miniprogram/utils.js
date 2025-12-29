@@ -16,9 +16,10 @@ const checkIsPc = () => {
  */
 const checkIsSkyline = () => {
   try {
-    const skylineInfo = wx.getSkylineInfoSync();
-    console.log('Skyline 信息：', skylineInfo);
-    return skylineInfo.isSupported;
+    const pages = getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    console.log('渲染器信息：', currentPage.renderer);
+    return currentPage.renderer === 'skyline';
   } catch (e) {
     console.error('获取 Skyline 信息失败', e);
   }
