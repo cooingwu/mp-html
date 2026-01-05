@@ -70,23 +70,19 @@ Component({
 
   methods: {
     /**
-     * @description 从节点数据获取配置
+     * @description 从节点数据和根组件获取配置
      */
     initFromRoot() {
       const { node } = this.properties;
 
-      // 从 node.anchorData 获取所有配置（由 index.js 在解析时设置）
-      let anchors = [];
-      let styles = [];
-      let mode = 'container';
-      let animation = true;
+      // 从 node.anchorData 获取锚点数据
+      const anchors = node.anchorData?.anchors || [];
 
-      if (node.anchorData) {
-        anchors = node.anchorData.anchors || [];
-        styles = node.anchorData.styles || [];
-        mode = node.anchorData.tooltipMode || 'container';
-        animation = node.anchorData.showAnimation !== false;
-      }
+      // 从根组件获取全局配置（避免在每个节点重复存储）
+      const root = this.getRoot();
+      const styles = root?.properties.anchorStyles || [];
+      const mode = root?.properties.tooltipMode || 'container';
+      const animation = root?.properties.showAnchorAnimation !== false;
 
       this.setData({
         anchors,
