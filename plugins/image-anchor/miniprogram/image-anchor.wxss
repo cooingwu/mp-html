@@ -10,6 +10,18 @@
   overflow: hidden; /* 限制锚点说明文本不超出图片 */
 }
 
+/* 独立模式：使用 block 布局，可以继承父容器高度
+ * 适用于在 movable-view、page-container 等有明确高度的父容器中使用
+ */
+.image-anchor-container.standalone-mode {
+  display: block;
+  height: 100%;
+}
+
+.image-anchor-container.standalone-mode .anchor-image {
+  height: 100%;
+}
+
 /* 图片 */
 .anchor-image {
   display: block;
@@ -19,10 +31,10 @@
 /* 锚点层 */
 .anchors-layer {
   position: absolute;
+  /* 默认值会被内联样式覆盖 */
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  /* 不再使用 right: 0; bottom: 0;，改用动态宽高 */
   pointer-events: none;
   z-index: 10;
 }

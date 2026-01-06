@@ -1,21 +1,41 @@
 <!-- 图片锚点容器组件
   用于包装带有锚点的图片 -->
-<view class="image-anchor-container">
+<view class="image-anchor-container {{isStandalone ? 'standalone-mode' : ''}}">
   <!-- 图片 -->
-  <image class="anchor-image _img" id="{{node.attrs.id}}" src="{{node.attrs.src}}" mode="{{!node.h ? 'widthFix' : (!node.w ? 'heightFix' : (node.m || 'scaleToFill'))}}" lazy-load="{{opts[0]}}" show-menu-by-longpress="{{opts[3] && !node.attrs.ignore}}" style="{{node.attrs.style}}" bindload="onImageLoad" binderror="onImageError" bindtap="onImageTap" />
+  <image
+    class="anchor-image _img {{imgClass || node.attrs.class}}"
+    id="{{imgId || node.attrs.id}}"
+    src="{{src || node.attrs.src}}"
+    mode="{{imgMode || (!node.h ? 'widthFix' : (!node.w ? 'heightFix' : (node.m || 'scaleToFill')))}}"
+    lazy-load="{{lazyLoad !== undefined ? lazyLoad : opts[0]}}"
+    show-menu-by-longpress="{{showMenuByLongpress !== undefined ? showMenuByLongpress : (opts[3] && !node.attrs.ignore)}}"
+    style="{{imgStyle || node.attrs.style}}"
+    bindload="onImageLoad"
+    binderror="onImageError"
+    bind:tap="onImageTap"
+  />
   <!-- 容器内透明遮罩层 - 位于锚点层下方，图片上方 -->
   <view class="container-mask {{showMask ? 'visible' : ''}}" wx:if="{{showMask || tooltipClosing}}" catchtap="onContainerMaskTap"></view>
-  <!-- 锚点层 -->
-  <view class="anchors-layer" wx:if="{{imageLoaded && anchors.length > 0}}">
-    <anchor-point wx:for="{{anchors}}" wx:key="id" anchor="{{item}}" styles="{{styles}}" animation="{{animation}}" image-width="{{imageWidth}}" image-height="{{imageHeight}}" bindanchortap="onAnchorTap" />
+  <!-- 锚点层 - 根据图片实际位置调整 -->
+  <view class="anchors-layer" style="left: {{imageLeft}}px; top: {{imageTop}}px; width: {{imageWidth}}px; height: {{imageHeight}}px;" wx:if="{{imageLoaded && anchors.length > 0}}">
+    <anchor-point wx:for="{{anchors}}" wx:key="id" anchor="{{item}}" styles="{{styles}}" animation="{{animation}}" image-width="{{imageWidth}}" image-height="{{imageHeight}}" bindanchortap="onAnchorTap" catch:tap="stopPropagation" />
   </view>
   <!-- 容器内弹窗 - 绝对定位，相对于锚点位置 -->
-  <view class="tooltip-wrapper position-{{tooltipPosition}} {{tooltipVisible ? 'visible' : ''}} {{tooltipClosing ? 'closing' : ''}} {{isVideoFullscreen ? 'video-fullscreen' : ''}}" style="{{tooltipPosition === 'bottom' ? 'top: ' + (anchorY + tooltipOffset) + '%;' : 'bottom: ' + (100 - anchorY + tooltipOffset) + '%;'}} {{'max-height: ' + (imageHeight * 0.4) + 'px;'}} {{'min-height: ' + (imageHeight > 100 ? 100 : imageHeight) + 'px;' }}" wx:if="{{mode === 'container' && activeAnchor}}" catchtap="stopPropagation">
+  <view class="tooltip-wrapper position-{{tooltipPosition}} {{tooltipVisible ? 'visible' : ''}} {{tooltipClosing ? 'closing' : ''}} {{isVideoFullscreen ? 'video-fullscreen' : ''}}" style="left: {{imageLeft}}px; width: {{imageWidth}}px; top: {{tooltipTop}}px; {{'max-height: ' + (imageHeight * 0.4) + 'px;'}} {{'min-height: ' + (imageHeight > 100 ? 100 : imageHeight) + 'px;' }}" wx:if="{{mode === 'container' && activeAnchor}}" catchtap="stopPropagation">
     <anchor-tooltip anchor="{{activeAnchor}}" position="{{tooltipPosition}}" mode="container" show-close="{{!showMask && !showModal}}" bindclose="onTooltipClose" bindpagechange="onPageChange" bindimgtap="onTooltipImgTap" bindvideofullscreenchange="onVideoFullscreenChange" />
   </view>
 </view>
-<!-- Modal 弹窗（fixed 定位，覆盖全屏） -->
-<view class="modal-overlay {{modalClosing ? 'closing' : ''}} {{isVideoFullscreen ? 'video-fullscreen' : ''}}" wx:if="{{showModal}}" catchtap="onMaskTap">
+<!-- Modal 弹窗 -->
+<root-portal enable="{{showModal}}" wx:if="{{showModal && useRootPortal}}">
+  <view class="modal-overlay {{modalClosing ? 'closing' : ''}} {{isVideoFullscreen ? 'video-fullscreen' : ''}}" catchtap="onMaskTap">
+    <view class="modal-mask"></view>
+    <view class="modal-content {{isPc ? 'is-pc' : ''}} {{modalClosing ? 'closing' : ''}}" catchtap="stopPropagation">
+      <anchor-tooltip anchor="{{activeAnchor}}" mode="modal" show-close="{{false}}" bindclose="onTooltipClose" bindpagechange="onPageChange" bindimgtap="onTooltipImgTap" bindvideofullscreenchange="onVideoFullscreenChange" />
+    </view>
+  </view>
+</root-portal>
+<!-- 备用方案：不使用 root-portal（兼容旧版本） -->
+<view class="modal-overlay {{modalClosing ? 'closing' : ''}} {{isVideoFullscreen ? 'video-fullscreen' : ''}}" wx:elif="{{showModal && !useRootPortal}}" catchtap="onMaskTap">
   <view class="modal-mask"></view>
   <view class="modal-content {{isPc ? 'is-pc' : ''}} {{modalClosing ? 'closing' : ''}}" catchtap="stopPropagation">
     <anchor-tooltip anchor="{{activeAnchor}}" mode="modal" show-close="{{false}}" bindclose="onTooltipClose" bindpagechange="onPageChange" bindimgtap="onTooltipImgTap" bindvideofullscreenchange="onVideoFullscreenChange" />

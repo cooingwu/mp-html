@@ -5,7 +5,7 @@
 <view
   class="anchor-point {{styleType}}"
   style="left: {{anchor.position.x}}%; top: {{anchor.position.y}}%; width: {{size}}px; height: {{size}}px;"
-  bindtap="onTap"
+  catch:tap="onTap"
 >
   <!-- 图片类型样式 -->
   <image
