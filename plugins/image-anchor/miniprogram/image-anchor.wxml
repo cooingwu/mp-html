@@ -18,7 +18,7 @@
   <view class="container-mask {{showMask ? 'visible' : ''}}" wx:if="{{showMask || tooltipClosing}}" catchtap="onContainerMaskTap"></view>
   <!-- 锚点层 - 根据图片实际位置调整 -->
   <view class="anchors-layer" style="left: {{imageLeft}}px; top: {{imageTop}}px; width: {{imageWidth}}px; height: {{imageHeight}}px;" wx:if="{{imageLoaded && anchors.length > 0}}">
-    <anchor-point wx:for="{{anchors}}" wx:key="id" anchor="{{item}}" styles="{{styles}}" animation="{{animation}}" image-width="{{imageWidth}}" image-height="{{imageHeight}}" bindanchortap="onAnchorTap" catch:tap="stopPropagation" />
+    <anchor-point wx:for="{{anchors}}" wx:key="id" anchor="{{item}}" styles="{{styles}}" animation="{{animation}}" image-width="{{imageWidth}}" image-height="{{imageHeight}}" bindanchortap="onAnchorTap" catch:tap="stopPropagation" catch:longtap="stopPropagation" catch:longpress="stopPropagation" catch:touchforcechange="stopPropagation" catch:touchcancel="stopPropagation" catch:touchstart="stopPropagation" catch:touchmove="stopPropagation" catch:touchend="stopPropagation"/>
   </view>
   <!-- 容器内弹窗 - 绝对定位，相对于锚点位置 -->
   <view class="tooltip-wrapper position-{{tooltipPosition}} {{tooltipVisible ? 'visible' : ''}} {{tooltipClosing ? 'closing' : ''}} {{isVideoFullscreen ? 'video-fullscreen' : ''}}" style="left: {{imageLeft}}px; width: {{imageWidth}}px; top: {{tooltipTop}}px; {{'max-height: ' + (imageHeight * 0.4) + 'px;'}} {{'min-height: ' + (imageHeight > 100 ? 100 : imageHeight) + 'px;' }}" wx:if="{{mode === 'container' && activeAnchor}}" catchtap="stopPropagation">
