@@ -3,6 +3,7 @@
   用于在图片上显示单个可点击的锚点
 -->
 <view
+  id="anchor-point"
   class="anchor-point {{styleType}}"
   style="left: {{anchor.position.x}}%; top: {{anchor.position.y}}%; width: {{size}}px; height: {{size}}px;"
   catch:tap="onTap"

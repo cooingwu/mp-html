@@ -233,7 +233,7 @@ Component({
 
         const validPosition = priorities.find(pos => spaceMap[pos]) || 'hidden'
 
-        console.log('[anchor-point] Label 位置计算:', {
+        console.debug('[anchor-point] Label 位置计算:', {
           labelSize: { width: labelRect.width, height: labelRect.height },
           imageSize: { width: imageWidth, height: actualImageHeight },
           anchorPosition: { x, y },
@@ -251,6 +251,14 @@ Component({
     onTap() {
       // 触发 anchortap 自定义事件，避免与原生 tap 事件冲突
       this.triggerEvent('anchortap', { anchor: this.data.anchor })
-    }
+    },
+
+    /**
+     * @description 阻止事件冒泡
+     */
+    stopPropagation(e) {
+      // 空函数，用于阻止点击穿透
+      console.debug('[anchor-point] stopPropagation', e);
+    },
   }
 })

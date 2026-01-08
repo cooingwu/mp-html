@@ -206,7 +206,7 @@ Component({
 
       if (!isStandalone) {
         // 模式 1：插件模式 - 从 node 对象和根组件获取
-        console.log('[image-anchor] 使用插件模式');
+        console.debug('[image-anchor] 使用插件模式');
         const { node } = this.properties;
         anchors = node.anchorData?.anchors || [];
 
@@ -229,7 +229,7 @@ Component({
      */
     onImageLoad(e) {
       const { width, height } = e.detail;
-      console.log('[image-anchor] 图片加载完成，原始尺寸：', width, height);
+      console.debug('[image-anchor] 图片加载完成，原始尺寸：', width, height);
 
       // 保存图片原始尺寸
       this.setData({
@@ -306,7 +306,7 @@ Component({
                         }
                       }
 
-                      console.log('[image-anchor] aspectFit 计算结果：', {
+                      console.debug('[image-anchor] aspectFit 计算结果：', {
                         containerRatio: containerRatio.toFixed(2),
                         imageRatio: imageRatio.toFixed(2),
                         resultSize: { width: imageWidth, height: imageHeight },
@@ -322,7 +322,7 @@ Component({
                     imageLeft,
                     imageTop,
                   });
-                  console.log('[image-anchor] 图片实际显示尺寸和位置：', {
+                  console.debug('[image-anchor] 图片实际显示尺寸和位置：', {
                     width: imageWidth,
                     height: imageHeight,
                     left: imageLeft,
@@ -335,7 +335,7 @@ Component({
                     imageWidth: rect.width,
                     imageHeight: rect.height,
                   });
-                  console.log('[image-anchor] 图片实际显示尺寸：', rect.width, rect.height);
+                  console.debug('[image-anchor] 图片实际显示尺寸：', rect.width, rect.height);
                 }
               })
               .exec();
@@ -431,7 +431,7 @@ Component({
         if (tooltipTop < 0) tooltipTop = 0;
       }
 
-      console.log('[image-anchor] 弹窗位置计算：', {
+      console.debug('[image-anchor] 弹窗位置计算：', {
         tooltipPosition,
         imageTop,
         imageHeight,
@@ -532,7 +532,7 @@ Component({
      */
     onVideoFullscreenChange(e) {
       const { fullScreen } = e.detail;
-      console.log('[image-anchor] 视频全屏状态变化:', fullScreen);
+      console.debug('[image-anchor] 视频全屏状态变化:', fullScreen);
       this.setData({
         isVideoFullscreen: fullScreen,
       });
@@ -602,8 +602,9 @@ Component({
     /**
      * @description 阻止事件冒泡
      */
-    stopPropagation() {
+    stopPropagation(e) {
       // 空函数，用于阻止点击穿透
+      console.debug('[image-anchor] stopPropagation', e);
     },
   },
 });
