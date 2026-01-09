@@ -248,9 +248,18 @@ Component({
     /**
      * @description 点击锚点
      */
-    onTap() {
-      // 触发 anchortap 自定义事件，避免与原生 tap 事件冲突
-      this.triggerEvent('anchortap', { anchor: this.data.anchor })
+    _taping: false,
+    onTap: function (e) {
+      if (this._taping) {
+        return;
+      }
+
+      this._taping = true;
+      setTimeout(() => {
+        this._taping = false;
+      }, 100);
+      console.debug('[anchor-point] onTap', this.data, e);
+      this.triggerEvent('anchortap', { anchor: this.data.anchor });
     },
 
     /**
