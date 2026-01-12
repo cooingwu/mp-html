@@ -233,7 +233,7 @@ Component({
 
         const validPosition = priorities.find(pos => spaceMap[pos]) || 'hidden'
 
-        console.log('[anchor-point] Label 位置计算:', {
+        console.debug('[anchor-point] Label 位置计算:', {
           labelSize: { width: labelRect.width, height: labelRect.height },
           imageSize: { width: imageWidth, height: actualImageHeight },
           anchorPosition: { x, y },
@@ -248,9 +248,36 @@ Component({
     /**
      * @description 点击锚点
      */
-    onTap() {
-      // 触发 anchortap 自定义事件，避免与原生 tap 事件冲突
-      this.triggerEvent('anchortap', { anchor: this.data.anchor })
-    }
+    _taping: false,
+    _tapTimeout: 0,
+    onTap: function (e) {
+      if (this._taping) {
+        return;
+      }
+
+      this._taping = true;
+      this._tapTimeout = setTimeout(() => {
+        console.debug('[anchor-point] onTap', this.data, e);
+        this.triggerEvent('anchortap', { anchor: this.data.anchor });
+        this._taping = false;
+        this._tapTimeout = 0;
+      }, 100);
+    },
+
+    cancelTap: function () {
+      if (this._tapTimeout) {
+        clearTimeout(this._tapTimeout);
+        this._taping = false;
+        this._tapTimeout = 0;
+      }
+    },
+
+    /**
+     * @description 阻止事件冒泡
+     */
+    stopPropagation(e) {
+      // 空函数，用于阻止点击穿透
+      console.debug('[anchor-point] stopPropagation', e);
+    },
   }
 })

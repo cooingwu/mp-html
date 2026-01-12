@@ -8,8 +8,8 @@
  * @param {Component} vm 组件实例
  */
 function ImageAnchorPlugin(vm) {
-  this.vm = vm
-  this.imageIndex = 0 // 图片计数器
+  this.vm = vm;
+  this.imageIndex = 0; // 图片计数器
 }
 
 /**
@@ -20,8 +20,8 @@ function ImageAnchorPlugin(vm) {
  */
 ImageAnchorPlugin.prototype.onUpdate = function (content, config) {
   // 重置图片计数器
-  this.imageIndex = 0
-}
+  this.imageIndex = 0;
+};
 
 /**
  * @description 解析到一个标签时触发
@@ -32,65 +32,46 @@ ImageAnchorPlugin.prototype.onUpdate = function (content, config) {
 ImageAnchorPlugin.prototype.onParse = function (node, parser) {
   // 只处理 img 标签
   if (node.name === 'img') {
-    const src = node.attrs.src || ''
-    const currentIndex = this.imageIndex++
+    const src = node.attrs.src || '';
+    const currentIndex = this.imageIndex++;
 
     // 获取锚点配置（扁平结构：每个锚点独立存储）
-    const imageAnchors = this.vm.properties.imageAnchors || []
+    const imageAnchors = this.vm.properties.imageAnchors || [];
 
     // 过滤出该图片的所有锚点（通过 imageIndex 或 imageSrc 匹配）
-    const matchedAnchors = imageAnchors.filter(anchor => {
-      // 优先通过索引匹配
-      if (anchor.imageIndex !== undefined && anchor.imageIndex === currentIndex) {
-        return true
-      }
-      // 其次通过 src 匹配
-      if (anchor.imageSrc && src.includes(anchor.imageSrc)) {
-        return true
-      }
-      return false
-    })
+    const matchedAnchors = imageAnchors.filter(
+      (anchor) => anchor.imageIndex === currentIndex || (anchor.imageSrc && src.includes(anchor.imageSrc))
+    );
+
+    node.attrs['image-index'] = currentIndex;
 
     // 如果该图片有锚点
     if (matchedAnchors.length > 0) {
+      node.attrs['has-anchors'] = true;
       // 标记该图片有锚点
-      node.hasAnchors = true
-      node.attrs['data-has-anchors'] = 'true'
-      node.attrs['data-image-index'] = String(currentIndex)
+      node.hasAnchors = true;
 
-      // 获取预设样式
-      const anchorStyles = this.vm.properties.anchorStyles || []
-      const tooltipMode = this.vm.properties.tooltipMode || 'container'
-      const showAnchorAnimation = this.vm.properties.showAnchorAnimation !== false
-
-      // 存储锚点数据到节点（包含样式配置）
+      // 只存储锚点数据，全局配置从根组件获取（避免数据冗余）
       node.anchorData = {
-        imageIndex: currentIndex,
         anchors: matchedAnchors,
-        styles: anchorStyles,
-        tooltipMode: tooltipMode,
-        showAnimation: showAnchorAnimation
-      }
-
-      // 暴露出来，不被 rich-text 包含
-      parser.expose()
+      };
     }
   }
-}
+};
 
 /**
  * @description dom 树加载完毕时触发（load 事件）
  */
 ImageAnchorPlugin.prototype.onLoad = function () {
   // 可以在此处初始化一些资源
-}
+};
 
 /**
  * @description 组件被移除时触发
  */
 ImageAnchorPlugin.prototype.onDetached = function () {
   // 清理资源
-  this.imageIndex = 0
-}
+  this.imageIndex = 0;
+};
 
-module.exports = ImageAnchorPlugin
+module.exports = ImageAnchorPlugin;

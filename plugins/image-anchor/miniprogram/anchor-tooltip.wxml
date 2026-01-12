@@ -9,7 +9,7 @@
   <block wx:if="{{item.type === 'richtext'}}">
     <view wx:if="{{item.title}}" class="page-title">{{item.title}}</view>
     <view class="richtext-body">
-      <image wx:if="{{item.image}}" class="page-image" src="{{item.image}}" mode="aspectFit" data-src="{{item.image}}" bindtap="onImageTap" />
+      <image wx:if="{{item.image}}" class="page-image" src="{{item.image}}" mode="aspectFit" data-src="{{item.image}}" catch:tap="onImageTap" />
       <text wx:if="{{item.content}}" class="page-text">{{item.content}}</text>
     </view>
   </block>
@@ -27,7 +27,7 @@
       <view class="audio-info">
         <view class="audio-title">{{item.audioTitle || '音频'}}</view>
         <view class="audio-controls">
-          <view class="play-btn" bindtap="toggleAudio" data-index="{{index}}">
+          <view class="play-btn" catch:tap="toggleAudio" data-index="{{index}}">
             <view class="play-icon {{isCurrentPlaying ? 'checked' : ''}}"></view>
           </view>
           <view class="audio-progress">
@@ -47,9 +47,9 @@
     <text>暂无内容</text>
   </view>
 </template>
-<view class="tooltip-container {{mode}} {{isPc ? 'is-pc' : 'is-mobile'}} {{isSkyline ? 'is-skyline': 'is-webview'}}" catchtap="stopPropagation">
+<view id="anchor-tooltip" class="tooltip-container {{mode}} {{isPc ? 'is-pc' : 'is-mobile'}} {{isSkyline ? 'is-skyline': 'is-webview'}}" catch:tap="stopPropagation">
   <!-- 关闭按钮 -->
-  <view class="close-btn" wx:if="{{showClose}}" bindtap="onClose">×</view>
+  <view class="close-btn" wx:if="{{showClose}}" catch:tap="onClose">×</view>
   <!-- ==================== 移动端：使用 swiper ==================== -->
   <swiper wx:if="{{!isPc}}" class="tooltip-swiper" style="{{swiperHeight > 0 ? 'height: ' + swiperHeight + 'px;' : ''}}" bindchange="onSwiperChange" indicator-dots="{{pages.length > 1}}" indicator-color="rgba(0, 0, 0, 0.3)" indicator-active-color="#1c1e1b">
     <swiper-item wx:for="{{pages}}" wx:key="id" class="swiper-page">
@@ -68,13 +68,13 @@
   </view>
   <!-- 分页控制 - 只在 PC 端多页时显示 -->
   <view wx:if="{{isPc && pages.length > 1}}" class="pagination">
-    <view class="page-btn {{currentIndex === 0 ? 'disabled' : ''}}" bindtap="prevPage">
+    <view class="page-btn {{currentIndex === 0 ? 'disabled' : ''}}" catch:tap="prevPage">
       <text class="btn-icon">‹</text>
     </view>
     <view class="page-dots">
-      <view wx:for="{{pages}}" wx:key="id" class="dot {{index === currentIndex ? 'active' : ''}}" bindtap="goToPage" data-index="{{index}}"></view>
+      <view wx:for="{{pages}}" wx:key="id" class="dot {{index === currentIndex ? 'active' : ''}}" catch:tap="goToPage" data-index="{{index}}"></view>
     </view>
-    <view class="page-btn {{currentIndex === pages.length - 1 ? 'disabled' : ''}}" bindtap="nextPage">
+    <view class="page-btn {{currentIndex === pages.length - 1 ? 'disabled' : ''}}" catch:tap="nextPage">
       <text class="btn-icon">›</text>
     </view>
   </view>

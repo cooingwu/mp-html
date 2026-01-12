@@ -104,17 +104,17 @@ Component({
      */
     calculateSwiperHeight() {
       const { mode, isPc, pages, currentIndex } = this.data;
-      console.log('[calculateSwiperHeight] 开始计算', { mode, isPc, pagesLength: pages.length, currentIndex });
+      console.debug('[calculateSwiperHeight] 开始计算', { mode, isPc, pagesLength: pages.length, currentIndex });
 
       // 空页面不计算
       if (!pages || pages.length === 0) {
-        console.log('[calculateSwiperHeight] 空页面，跳过计算');
+        console.debug('[calculateSwiperHeight] 空页面，跳过计算');
         return;
       }
 
       // 检查是否包含视频类型
       const hasVideo = pages[currentIndex].type === 'video';
-      console.log('[calculateSwiperHeight] 是否包含视频:', hasVideo);
+      console.debug('[calculateSwiperHeight] 是否包含视频:', hasVideo);
 
       // 延迟执行，确保 DOM 渲染完成
       setTimeout(() => {
@@ -122,7 +122,7 @@ Component({
         const screenHeight = windowInfo.windowHeight;
         const screenWidth = windowInfo.windowWidth;
         const paginationHeight = isPc && pages.length > 1 ? 40 : 0;
-        console.log('[calculateSwiperHeight] 屏幕信息', { screenHeight, screenWidth, paginationHeight });
+        console.debug('[calculateSwiperHeight] 屏幕信息', { screenHeight, screenWidth, paginationHeight });
 
         if (mode === 'container') {
           // container 模式：获取父容器高度，减去分页控制高度
@@ -131,16 +131,16 @@ Component({
           query.exec((res) => {
             const containerHeight = res[0]?.height || 0;
             const swiperHeight = containerHeight - paginationHeight;
-            console.log('[calculateSwiperHeight] container模式', { containerHeight, paginationHeight, swiperHeight });
+            console.debug('[calculateSwiperHeight] container模式', { containerHeight, paginationHeight, swiperHeight });
             if (swiperHeight > 0 && swiperHeight !== this.data.swiperHeight) {
-              console.log('[calculateSwiperHeight] 设置 swiperHeight:', swiperHeight);
+              console.debug('[calculateSwiperHeight] 设置 swiperHeight:', swiperHeight);
               this.setData({ swiperHeight });
             }
           });
         } else {
           // modal 模式
           const height = screenHeight * 0.4;
-          console.log('[calculateSwiperHeight] modal模式', { height });
+          console.debug('[calculateSwiperHeight] modal模式', { height });
           this.setData({ swiperHeight: height });
           return;
         }
@@ -267,7 +267,7 @@ Component({
      */
     onVideoFullscreenChange(e) {
       const { fullScreen } = e.detail;
-      console.log('[onVideoFullscreenChange] 全屏状态变化:', fullScreen);
+      console.debug('[onVideoFullscreenChange] 全屏状态变化:', fullScreen);
       // 触发事件通知父组件
       this.triggerEvent('videofullscreenchange', { fullScreen });
     },
@@ -289,7 +289,7 @@ Component({
       audioContext.src = currentPage.audio;
 
       audioContext.onCanplay(() => {
-        console.log('[initAudio] 音频准备就绪, duration:', audioContext.duration);
+        console.debug('[initAudio] 音频准备就绪, duration:', audioContext.duration);
         this.setData({
           audioDuration: audioContext.duration,
         });
@@ -311,7 +311,7 @@ Component({
       });
 
       audioContext.onPlay(() => {
-        console.log('[initAudio] 开始播放, duration:', audioContext.duration);
+        console.debug('[initAudio] 开始播放, duration:', audioContext.duration);
         const updateData = { isPlaying: true };
         // 移动端可能在播放开始时才能获取到 duration
         if (audioContext.duration > 0 && this.data.audioDuration !== audioContext.duration) {
@@ -321,12 +321,12 @@ Component({
       });
 
       audioContext.onPause(() => {
-        console.log('[initAudio] 暂停');
+        console.debug('[initAudio] 暂停');
         this.setData({ isPlaying: false });
       });
 
       audioContext.onEnded(() => {
-        console.log('[initAudio] 播放结束');
+        console.debug('[initAudio] 播放结束');
         this.setData({
           isPlaying: false,
           audioCurrentTime: 0,
@@ -345,7 +345,7 @@ Component({
      * @description 播放/暂停音频
      */
     toggleAudio() {
-      console.log('[toggleAudio] 点击, isPlaying:', this.data.isPlaying, 'audioContext:', !!this.audioContext);
+      console.debug('[toggleAudio] 点击, isPlaying:', this.data.isPlaying, 'audioContext:', !!this.audioContext);
 
       if (!this.audioContext) {
         // 初始化并自动播放
@@ -379,8 +379,9 @@ Component({
     /**
      * @description 阻止事件冒泡
      */
-    stopPropagation() {
+    stopPropagation(e) {
       // 空函数，用于阻止点击穿透
+      console.debug('[anchor-tooltip] 阻止事件冒泡', e);
     },
   },
 });

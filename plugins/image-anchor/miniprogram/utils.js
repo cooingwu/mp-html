@@ -4,7 +4,6 @@
 const checkIsPc = () => {
   try {
     const deviceInfo = wx.getDeviceInfo();
-    console.log('设备信息：', deviceInfo);
     return deviceInfo.platform === 'windows' || deviceInfo.platform === 'mac' || deviceInfo.platform === 'ohos_pc';
   } catch (e) {
     console.error('获取系统信息失败', e);
@@ -18,7 +17,6 @@ const checkIsSkyline = () => {
   try {
     const pages = getCurrentPages();
     const currentPage = pages[pages.length - 1];
-    console.log('渲染器信息：', currentPage.renderer);
     return currentPage.renderer === 'skyline';
   } catch (e) {
     console.error('获取 Skyline 信息失败', e);
