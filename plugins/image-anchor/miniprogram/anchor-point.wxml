@@ -8,6 +8,7 @@
   style="left: {{anchor.position.x}}%; top: {{anchor.position.y}}%; width: {{size}}px; height: {{size}}px;"
   catch:tap="onTap"
   catch:touchstart="onTap"
+  bind:touchmove="cancelTap"
 >
   <!-- 图片类型样式 -->
   <image

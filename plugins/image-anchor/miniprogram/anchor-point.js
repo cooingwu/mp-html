@@ -249,17 +249,27 @@ Component({
      * @description 点击锚点
      */
     _taping: false,
+    _tapTimeout: 0,
     onTap: function (e) {
       if (this._taping) {
         return;
       }
 
       this._taping = true;
-      setTimeout(() => {
+      this._tapTimeout = setTimeout(() => {
+        console.debug('[anchor-point] onTap', this.data, e);
+        this.triggerEvent('anchortap', { anchor: this.data.anchor });
         this._taping = false;
+        this._tapTimeout = 0;
       }, 100);
-      console.debug('[anchor-point] onTap', this.data, e);
-      this.triggerEvent('anchortap', { anchor: this.data.anchor });
+    },
+
+    cancelTap: function () {
+      if (this._tapTimeout) {
+        clearTimeout(this._tapTimeout);
+        this._taping = false;
+        this._tapTimeout = 0;
+      }
     },
 
     /**
