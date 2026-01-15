@@ -19,6 +19,7 @@ module.exports = {
     // 'img-cache',  // 图片缓存
     // 'card',      // 卡片展示
     // 'image-anchor', // 图片锚点
+    // 'headings',   // 文章目录
   ],
 
   /**
