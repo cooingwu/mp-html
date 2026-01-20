@@ -145,6 +145,16 @@ Component({
       type: Boolean,
       value: true,
     },
+
+    /**
+     * @description 是否自动监听图片尺寸变化
+     * true 时使用定时轮询监听并重新计算锚点位置
+     * false 时需要手动监听容器尺寸变化
+     */
+    autoResize: {
+      type: Boolean,
+      value: false,
+    },
   },
 
   data: {
@@ -180,9 +190,14 @@ Component({
         isPc: checkIsPc(),
         isSkyline: checkIsSkyline(),
       })
-      // 获取根组件的配置
+      // 获取根组件的配置（包括 autoResize）
       this.initFromRoot();
     },
+
+    detached() {
+      // 清理定时器
+      this._stopSizeCheck();
+    }
   },
 
   pageLifetimes: {
@@ -193,10 +208,85 @@ Component({
 
   methods: {
     /**
+     * @description 启动定时检查尺寸变化
+     * @private
+     */
+    _startSizeCheck() {
+      console.debug('[image-anchor] 启动定时尺寸检查');
+
+      // 避免重复启动
+      if (this._sizeCheckTimer) {
+        return;
+      }
+
+      // 每 1000ms 检查一次尺寸变化
+      this._sizeCheckTimer = setInterval(() => {
+        if (!this.data.imageLoaded) {
+          return;
+        }
+
+        // 获取当前图片尺寸
+        this.createSelectorQuery()
+          .select('.anchor-image')
+          .boundingClientRect((rect) => {
+            if (!rect) return;
+
+            // 首次检查时只记录尺寸
+            if (!this._lastImageSize) {
+              this._lastImageSize = {
+                width: rect.width,
+                height: rect.height
+              };
+              return;
+            }
+
+            // 获取当前尺寸
+            const currentWidth = rect.width;
+            const currentHeight = rect.height;
+            const previousWidth = this._lastImageSize.width;
+            const previousHeight = this._lastImageSize.height;
+
+            // 检测尺寸变化（阈值 2px）
+            const widthChanged = Math.abs(currentWidth - previousWidth) > 2;
+            const heightChanged = Math.abs(currentHeight - previousHeight) > 2;
+
+            if (widthChanged || heightChanged) {
+              console.debug('[image-anchor] 检测到图片尺寸变化:', {
+                old: { width: previousWidth, height: previousHeight },
+                new: { width: currentWidth, height: currentHeight }
+              });
+
+              // 重新计算锚点位置
+              this.initImageDimensions();
+
+              // 更新缓存的尺寸
+              this._lastImageSize = {
+                width: currentWidth,
+                height: currentHeight
+              };
+            }
+          })
+          .exec();
+      }, 500);
+    },
+
+    /**
+     * @description 停止定时检查
+     * @private
+     */
+    _stopSizeCheck() {
+      if (this._sizeCheckTimer) {
+        clearInterval(this._sizeCheckTimer);
+        this._sizeCheckTimer = null;
+        console.debug('[image-anchor] 停止定时尺寸检查');
+      }
+    },
+
+    /**
      * @description 从节点数据和根组件获取配置（支持双模式）
      */
     initFromRoot() {
-      let anchors, styles, mode, animation;
+      let anchors, styles, mode, animation, autoResize;
 
       // 判断使用哪种模式
       const isStandalone = !this.properties.node || Object.keys(this.properties.node).length === 0;
@@ -215,12 +305,29 @@ Component({
         styles = root?.properties.anchorStyles || [];
         mode = root?.properties.tooltipMode || 'container';
         animation = root?.properties.showAnchorAnimation !== false;
+        autoResize = root?.properties.anchorAutoResize || false;
+
+        console.debug('[image-anchor] 从根组件获取配置:', {
+          hasAnchorStyles: !!(root?.properties.anchorStyles),
+          tooltipMode: mode,
+          showAnchorAnimation: animation,
+          anchorAutoResize: autoResize
+        });
+
         this.setData({
           anchors,
           styles,
           mode,
           animation,
+          autoResize,
         });
+      }
+
+      // 如果启用了自动监听，启动定时检查
+      // 注意：使用刚获取的 autoResize 变量，而不是 this.data.autoResize（因为 setData 是异步的）
+      if (autoResize || this.properties.autoResize) {
+        console.debug('[image-anchor] 启动自动尺寸监听');
+        this._startSizeCheck();
       }
     },
 

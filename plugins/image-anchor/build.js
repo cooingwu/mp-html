@@ -124,6 +124,16 @@ module.exports = {
     showAnchorAnimation: {
       type: Boolean,
       value: true
+    },
+
+    /**
+     * @description 是否自动监听图片尺寸变化
+     * @type {Boolean}
+     * @default false
+     */
+    anchorAutoResize: {
+      type: Boolean,
+      value: false
     }
   }`
         )
