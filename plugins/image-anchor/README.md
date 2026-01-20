@@ -40,6 +40,7 @@ npm run build:weixin
   anchor-styles="{{anchorStyles}}"
   tooltip-mode="container"
   show-anchor-animation="{{true}}"
+  anchor-auto-resize="{{true}}"
   bindanchortap="onAnchorTap"
   bindtooltipshow="onTooltipShow"
   bindtooltiphide="onTooltipHide"
@@ -55,6 +56,7 @@ npm run build:weixin
 | anchor-styles | Array | [] | 锚点预设样式数组 |
 | tooltip-mode | String | 'container' | 弹窗显示模式：'container'(容器内) / 'modal'(底部弹窗) |
 | show-anchor-animation | Boolean | true | 是否显示锚点脉冲动画 |
+| anchor-auto-resize | Boolean | false | 是否自动监听图片尺寸变化并重新计算锚点位置 |
 
 ## 事件说明
 
@@ -160,6 +162,45 @@ npm run build:weixin
 ### modal 模式
 
 弹窗作为独立层从底部弹出，覆盖全屏，最大高度 70vh。点击遮罩可关闭。
+
+## 自动监听尺寸变化
+
+### anchor-auto-resize 属性
+
+`anchor-auto-resize` 属性可以自动监听图片尺寸变化并重新计算锚点位置。支持插件模式和独立模式。
+
+**工作原理：**
+
+使用定时轮询机制（每 1000ms）检查图片元素的 `boundingClientRect`。当检测到尺寸变化超过 2px 阈值时，自动触发 `initImageDimensions()` 方法重新计算锚点位置。
+
+**触发场景：**
+
+- 容器宽度变化（如折叠面板展开/收起）
+- 页面 resize（已通过 `pageLifetimes.resize` 自动处理）
+- 图片加载完成后的尺寸调整
+- 父组件布局变化影响图片显示尺寸
+
+**使用方法：**
+
+```html
+<!-- 插件模式：启用自动监听 -->
+<mp-html
+  content="{{html}}"
+  image-anchors="{{imageAnchors}}"
+  anchor-auto-resize="{{true}}"
+/>
+
+<!-- 独立模式：启用自动监听 -->
+<image-anchor
+  src="{{imageUrl}}"
+  image-anchors="{{anchors}}"
+  auto-resize="{{true}}"
+/>
+```
+
+**性能建议：**
+
+- 默认关闭 `anchor-auto-resize`，仅在容器尺寸会频繁变化时启用
 
 ## 注意事项
 
