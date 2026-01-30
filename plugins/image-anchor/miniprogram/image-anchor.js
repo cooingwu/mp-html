@@ -174,22 +174,16 @@ Component({
     imageHeight: 0, // 图片实际显示高度
     imageLeft: 0, // 图片在容器中的左侧偏移
     imageTop: 0, // 图片在容器中的顶部偏移
-    originalImageWidth: 0, // 图片原始宽度
-    originalImageHeight: 0, // 图片原始高度
     activeAnchor: null, // 当前激活的锚点
     tooltipPosition: 'bottom', // 弹窗位置
     tooltipTop: 0, // 弹窗 top 位置（像素）
-    tooltipBottom: 0, // 弹窗 bottom 位置（像素）
-    anchorY: 50, // 锚点 y 坐标（百分比）
-    anchorSizePercent: 8, // 锚点大小（百分比，相对于图片宽度）
-    tooltipOffset: 4, // 弹窗偏移量（百分比，相对于图片高度）
     tooltipVisible: false, // 弹窗是否可见（用于动画控制）
     tooltipClosing: false, // 弹窗是否正在关闭（用于关闭动画）
     showModal: false, // 是否显示 modal 弹窗
     modalClosing: false, // Modal 弹窗是否正在关闭（用于关闭动画）
     showMask: false, // 是否显示遮罩层
     isPc: false, // 是否是 PC 端
-    isSkyline: false, // 是否使用 Skyline 渲染引擎
+    isSkyline: false, // 是否使用 Skyline 渲染引擎（传递给子组件）
     isVideoFullscreen: false, // 视频是否全屏
     isStandalone: false, // 是否是独立模式
   },
@@ -349,131 +343,163 @@ Component({
       const { width, height } = e.detail;
       console.debug('[image-anchor] 图片加载完成，原始尺寸：', width, height);
 
-      // 保存图片原始尺寸
-      this.setData({
-        originalImageWidth: width,
-        originalImageHeight: height,
-      });
+      // ✅ 保存图片原始尺寸到实例变量（不需要 setData）
+      this._originalImageWidth = width;
+      this._originalImageHeight = height;
 
-      this.initImageDimensions();
+      // ✅ 使用 wx.nextTick 确保视图已渲染后再查询
+      wx.nextTick(() => {
+        this.initImageDimensions();
+      });
 
       // 触发原有的图片加载事件
       this.triggerEvent('imgload', e.detail);
     },
 
     initImageDimensions() {
-      // 获取图片实际显示尺寸和位置
+      // ✅ 使用批量查询确保获取同一时刻的快照
       const query = this.createSelectorQuery();
-      query
-        .select('.anchor-image')
-        .boundingClientRect((rect) => {
-          if (rect) {
-            // 同时获取容器的位置
-            this.createSelectorQuery()
-              .select('.image-anchor-container')
-              .boundingClientRect((containerRect) => {
-                if (containerRect) {
-                  const { originalImageWidth, originalImageHeight } = this.data;
+      query.select('.anchor-image').boundingClientRect();
+      query.select('.image-anchor-container').boundingClientRect();
 
-                  // 获取缩放因子（默认为 1）
-                  const scaleFactor = this.properties.containerScaleFactor || 1;
+      query.exec((res) => {
+        const rect = res[0];
+        const containerRect = res[1];
 
-                  // 将查询到的容器尺寸除以缩放因子，得到真实布局尺寸
-                  const realContainerWidth = containerRect.width / scaleFactor;
-                  const realContainerHeight = containerRect.height / scaleFactor;
+        if (!rect) {
+          console.warn('[image-anchor] 无法获取图片位置信息');
+          return;
+        }
 
-                  console.debug('[image-anchor] 容器尺寸（查询/真实）:', {
-                    queried: { width: containerRect.width, height: containerRect.height },
-                    real: { width: realContainerWidth, height: realContainerHeight },
-                    scaleFactor: scaleFactor
-                  });
+        if (!containerRect) {
+          // 如果无法获取容器位置，使用默认值
+          this.setData({
+            imageLoaded: true,
+            imageWidth: rect.width,
+            imageHeight: rect.height,
+          });
+          console.debug('[image-anchor] 图片实际显示尺寸：', rect.width, rect.height);
+          return;
+        }
 
-                  // 图片在容器中的偏移也需要除以缩放因子
-                  let imageLeft = (rect.left - containerRect.left) / scaleFactor;
-                  let imageTop = (rect.top - containerRect.top) / scaleFactor;
-                  let imageWidth = rect.width;
-                  let imageHeight = rect.height;
+        // ✅ 此时 rect 和 containerRect 是同一时刻的快照
+        const { _originalImageWidth: originalImageWidth, _originalImageHeight: originalImageHeight } = this;
 
-                  // 如果有原始图片尺寸，计算 aspectFit 模式下的实际内容区域
-                  if (originalImageWidth && originalImageHeight && rect.width && rect.height) {
-                    // 判断是否使用 aspectFit 或类似保持比例的模式
-                    const imgMode = this.properties.imgMode || (!this.properties.node?.h ? 'widthFix' : (!this.properties.node?.w ? 'heightFix' : (this.properties.node?.m || 'scaleToFill')));
-                    const isAspectFit = imgMode === 'aspectFit' || imgMode === 'aspectFill';
+        // ✅ 添加日志验证数据是否已更新
+        console.debug('[image-anchor] 原始图片尺寸:', {
+          originalImageWidth,
+          originalImageHeight,
+          hasData: !!(originalImageWidth && originalImageHeight)
+        });
 
-                    if (isAspectFit) {
-                      // 使用真实容器尺寸计算宽高比
-                      const containerRatio = realContainerWidth / realContainerHeight;
-                      // 计算图片的宽高比
-                      const imageRatio = originalImageWidth / originalImageHeight;
+        // 获取缩放因子（默认为 1）
+        const scaleFactor = this.properties.containerScaleFactor || 1;
 
-                      if (imgMode === 'aspectFit') {
-                        // aspectFit: 保持完整图片，可能留白
-                        if (imageRatio > containerRatio) {
-                          // 图片更宽，宽度填满，高度可能留白
-                          imageWidth = realContainerWidth;
-                          imageHeight = realContainerWidth / imageRatio;
-                          imageLeft = 0;
-                          imageTop = (realContainerHeight - imageHeight) / 2;
-                        } else {
-                          // 图片更高，高度填满，宽度可能留白
-                          imageWidth = realContainerHeight * imageRatio;
-                          imageHeight = realContainerHeight;
-                          imageLeft = (realContainerWidth - imageWidth) / 2;
-                          imageTop = 0;
-                        }
-                      } else if (imgMode === 'aspectFill') {
-                        // aspectFill: 填满容器，可能裁剪
-                        if (imageRatio > containerRatio) {
-                          // 图片更宽，高度填满，宽度被裁剪
-                          imageWidth = realContainerHeight * imageRatio;
-                          imageHeight = realContainerHeight;
-                          imageLeft = (realContainerWidth - imageWidth) / 2;
-                          imageTop = 0;
-                        } else {
-                          // 图片更高，宽度填满，高度被裁剪
-                          imageWidth = realContainerWidth;
-                          imageHeight = realContainerWidth / imageRatio;
-                          imageLeft = 0;
-                          imageTop = (realContainerHeight - imageHeight) / 2;
-                        }
-                      }
+        // 将查询到的容器尺寸除以缩放因子，得到真实布局尺寸
+        const realContainerWidth = containerRect.width / scaleFactor;
+        const realContainerHeight = containerRect.height / scaleFactor;
 
-                      console.debug('[image-anchor] aspectFit 计算结果：', {
-                        containerRatio: containerRatio.toFixed(2),
-                        imageRatio: imageRatio.toFixed(2),
-                        resultSize: { width: imageWidth, height: imageHeight },
-                        offset: { left: imageLeft, top: imageTop }
-                      });
-                    }
-                  }
+        console.debug('[image-anchor] 查询结果（同一时刻快照）:', {
+          image: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
+          container: { top: containerRect.top, left: containerRect.left, width: containerRect.width, height: containerRect.height },
+          scaleFactor: scaleFactor
+        });
 
-                  this.setData({
-                    imageLoaded: true,
-                    imageWidth,
-                    imageHeight,
-                    imageLeft,
-                    imageTop,
-                  });
-                  console.debug('[image-anchor] 图片实际显示尺寸和位置：', {
-                    width: imageWidth,
-                    height: imageHeight,
-                    left: imageLeft,
-                    top: imageTop
-                  });
-                } else {
-                  // 如果无法获取容器位置，使用默认值
-                  this.setData({
-                    imageLoaded: true,
-                    imageWidth: rect.width,
-                    imageHeight: rect.height,
-                  });
-                  console.debug('[image-anchor] 图片实际显示尺寸：', rect.width, rect.height);
-                }
-              })
-              .exec();
+        // 图片在容器中的偏移也需要除以缩放因子
+        let imageLeft = (rect.left - containerRect.left) / scaleFactor;
+        let imageTop = (rect.top - containerRect.top) / scaleFactor;
+        let imageWidth = rect.width;
+        let imageHeight = rect.height;
+
+        // 如果有原始图片尺寸，根据图片模式计算实际显示尺寸
+        if (originalImageWidth && originalImageHeight && rect.width && rect.height) {
+          // 判断图片模式
+          const imgMode = this.properties.imgMode || (!this.properties.node?.h ? 'widthFix' : (!this.properties.node?.w ? 'heightFix' : (this.properties.node?.m || 'scaleToFill')));
+
+          console.debug('[image-anchor] 图片模式:', { imgMode, propImgMode: this.properties.imgMode, nodeH: this.properties.node?.h, nodeW: this.properties.node?.w, nodeM: this.properties.node?.m });
+
+          if (imgMode === 'widthFix') {
+            // ✅ widthFix 模式：宽度固定，高度根据原始尺寸计算
+            // 不依赖查询到的高度（因为查询时可能不准确）
+            imageWidth = rect.width;
+            if (rect.width > 0) {
+              imageHeight = rect.width / originalImageWidth * originalImageHeight;
+            }
+            console.debug('[image-anchor] widthFix 模式计算:', {
+              containerWidth: rect.width,
+              originalWidth: originalImageWidth,
+              originalHeight: originalImageHeight,
+              calculatedHeight: imageHeight
+            });
+          } else if (imgMode === 'heightFix') {
+            // heightFix 模式：高度固定，宽度根据原始尺寸计算
+            imageHeight = rect.height;
+            if (rect.height > 0) {
+              imageWidth = rect.height / originalImageHeight * originalImageWidth;
+            }
+          } else if (imgMode === 'aspectFit' || imgMode === 'aspectFill') {
+            // aspectFit/aspectFill 模式：保持宽高比，可能裁剪或留白
+            const containerRatio = realContainerWidth / realContainerHeight;
+            const imageRatio = originalImageWidth / originalImageHeight;
+
+            if (imgMode === 'aspectFit') {
+              // aspectFit: 保持完整图片，可能留白
+              if (imageRatio > containerRatio) {
+                // 图片更宽，宽度填满，高度可能留白
+                imageWidth = realContainerWidth;
+                imageHeight = realContainerWidth / imageRatio;
+                imageLeft = 0;
+                imageTop = (realContainerHeight - imageHeight) / 2;
+              } else {
+                // 图片更高，高度填满，宽度可能留白
+                imageWidth = realContainerHeight * imageRatio;
+                imageHeight = realContainerHeight;
+                imageLeft = (realContainerWidth - imageWidth) / 2;
+                imageTop = 0;
+              }
+            } else {
+              // aspectFill: 填满容器，可能裁剪
+              if (imageRatio > containerRatio) {
+                // 图片更宽，高度填满，宽度被裁剪
+                imageWidth = realContainerHeight * imageRatio;
+                imageHeight = realContainerHeight;
+                imageLeft = (realContainerWidth - imageWidth) / 2;
+                imageTop = 0;
+              } else {
+                // 图片更高，宽度填满，高度被裁剪
+                imageWidth = realContainerWidth;
+                imageHeight = realContainerWidth / imageRatio;
+                imageLeft = 0;
+                imageTop = (realContainerHeight - imageHeight) / 2;
+              }
+            }
+
+            console.debug('[image-anchor] aspectFit/aspectFill 计算结果：', {
+              mode: imgMode,
+              containerRatio: containerRatio.toFixed(2),
+              imageRatio: imageRatio.toFixed(2),
+              resultSize: { width: imageWidth, height: imageHeight },
+              offset: { left: imageLeft, top: imageTop }
+            });
           }
-        })
-        .exec();
+        }
+
+        this.setData({
+          imageLoaded: true,
+          imageWidth,
+          imageHeight,
+          imageLeft,
+          imageTop,
+        });
+
+        console.debug('[image-anchor] ✅ 最终计算结果：', {
+          width: imageWidth,
+          height: imageHeight,
+          left: imageLeft,
+          top: imageTop,
+          valid: imageTop >= 0 && imageLeft >= 0
+        });
+      });
     },
 
     /**
@@ -551,7 +577,6 @@ Component({
 
       // 计算弹窗的实际像素位置
       let tooltipTop = 0;
-      let tooltipBottom = 0;
       if (tooltipPosition === 'bottom') {
         // 弹窗在锚点下方：top = 图片top + 锚点y位置 + 偏移
         tooltipTop = imageTop + imageHeight * (anchorY / 100) + imageHeight * (tooltipOffset / 100);
@@ -570,16 +595,12 @@ Component({
         imageHeight,
         anchorY,
         tooltipOffset,
-        tooltipTop,
-        tooltipBottom
+        tooltipTop
       });
 
       this.setData({
         activeAnchor: anchor,
         tooltipPosition,
-        anchorY,
-        anchorSizePercent,
-        tooltipOffset,
         tooltipTop,
         tooltipClosing: false,
         showModal: mode === 'modal',
