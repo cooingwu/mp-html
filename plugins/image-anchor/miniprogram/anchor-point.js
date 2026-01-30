@@ -72,6 +72,15 @@ Component({
       type: Number,
       value: 0
     },
+
+    /**
+     * @description 容器缩放比例因子
+     * 用于保持锚点在不同缩放比例下的视觉一致性
+     */
+    containerScaleFactor: {
+      type: Number,
+      value: 1
+    },
   },
 
   data: {
