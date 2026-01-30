@@ -10,7 +10,6 @@
   catch:touchstart="onTap"
   bind:touchmove="cancelTap"
 >
-  <!-- 图片类型样式 -->
   <image
     wx:if="{{styleType === 'image'}}"
     class="anchor-image {{animation ? 'pulse' : ''}}"
@@ -18,34 +17,36 @@
     mode="aspectFit"
   />
 
-  <!-- 图形类型样式 -->
   <view
     wx:elif="{{styleType === 'shape'}}"
     class="anchor-shape {{shapeClass}} {{animation ? 'pulse' : ''}}"
     style="{{shapeStyle}}"
   ></view>
 
-  <!-- 图标类型样式 -->
   <view
     wx:elif="{{styleType === 'icon'}}"
     class="anchor-icon {{animation ? 'pulse' : ''}}"
   >
-    <image class="icon-svg" src="{{iconSvg}}" mode="aspectFit" />
+    <image
+      class="icon-svg"
+      src="{{iconSvg}}"
+      mode="aspectFit"
+    />
   </view>
 
-  <!-- 默认样式（显示序号） -->
   <view
     wx:else
     class="anchor-default {{animation ? 'pulse' : ''}}"
     style="background-color: {{anchor.style.color || '#ff4d4f'}};"
   >
-    <text class="anchor-order">{{anchor.order || ''}}</text>
+    <text class="anchor-order" style="font-size: {{16 / (containerScaleFactor || 1)}}px;">{{anchor.order || ''}}</text>
   </view>
 
   <!-- 说明文本 -->
   <view
     wx:if="{{anchor.label && anchor.label.text}}"
     class="anchor-label label-{{labelPosition}}"
+    style="font-size: {{16 / (containerScaleFactor || 1)}}px; padding: {{2 / (containerScaleFactor || 1)}}px {{8 / (containerScaleFactor || 1)}}px; border-radius: {{10 / (containerScaleFactor || 1)}}px; max-width: {{100 / (containerScaleFactor || 1)}}px;"
   >
     {{anchor.label.text}}
   </view>

@@ -155,6 +155,17 @@ Component({
       type: Boolean,
       value: false,
     },
+
+    /**
+     * @description 容器缩放比例因子
+     * 当父容器被 transform: scale() 缩放时，传入缩放值（如 0.333）
+     * 组件会将查询到的容器尺寸除以该值，得到真实布局尺寸
+     * 用于解决高分辨率渲染方案中的 transform 影响问题
+     */
+    containerScaleFactor: {
+      type: Number,
+      value: 1,  // 默认为 1，不影响现有使用场景
+    },
   },
 
   data: {
@@ -364,8 +375,22 @@ Component({
                 if (containerRect) {
                   const { originalImageWidth, originalImageHeight } = this.data;
 
-                  let imageLeft = rect.left - containerRect.left;
-                  let imageTop = rect.top - containerRect.top;
+                  // 获取缩放因子（默认为 1）
+                  const scaleFactor = this.properties.containerScaleFactor || 1;
+
+                  // 将查询到的容器尺寸除以缩放因子，得到真实布局尺寸
+                  const realContainerWidth = containerRect.width / scaleFactor;
+                  const realContainerHeight = containerRect.height / scaleFactor;
+
+                  console.debug('[image-anchor] 容器尺寸（查询/真实）:', {
+                    queried: { width: containerRect.width, height: containerRect.height },
+                    real: { width: realContainerWidth, height: realContainerHeight },
+                    scaleFactor: scaleFactor
+                  });
+
+                  // 图片在容器中的偏移也需要除以缩放因子
+                  let imageLeft = (rect.left - containerRect.left) / scaleFactor;
+                  let imageTop = (rect.top - containerRect.top) / scaleFactor;
                   let imageWidth = rect.width;
                   let imageHeight = rect.height;
 
@@ -376,8 +401,8 @@ Component({
                     const isAspectFit = imgMode === 'aspectFit' || imgMode === 'aspectFill';
 
                     if (isAspectFit) {
-                      // 计算容器的宽高比
-                      const containerRatio = containerRect.width / containerRect.height;
+                      // 使用真实容器尺寸计算宽高比
+                      const containerRatio = realContainerWidth / realContainerHeight;
                       // 计算图片的宽高比
                       const imageRatio = originalImageWidth / originalImageHeight;
 
@@ -385,31 +410,31 @@ Component({
                         // aspectFit: 保持完整图片，可能留白
                         if (imageRatio > containerRatio) {
                           // 图片更宽，宽度填满，高度可能留白
-                          imageWidth = containerRect.width;
-                          imageHeight = containerRect.width / imageRatio;
+                          imageWidth = realContainerWidth;
+                          imageHeight = realContainerWidth / imageRatio;
                           imageLeft = 0;
-                          imageTop = (containerRect.height - imageHeight) / 2;
+                          imageTop = (realContainerHeight - imageHeight) / 2;
                         } else {
                           // 图片更高，高度填满，宽度可能留白
-                          imageWidth = containerRect.height * imageRatio;
-                          imageHeight = containerRect.height;
-                          imageLeft = (containerRect.width - imageWidth) / 2;
+                          imageWidth = realContainerHeight * imageRatio;
+                          imageHeight = realContainerHeight;
+                          imageLeft = (realContainerWidth - imageWidth) / 2;
                           imageTop = 0;
                         }
                       } else if (imgMode === 'aspectFill') {
                         // aspectFill: 填满容器，可能裁剪
                         if (imageRatio > containerRatio) {
                           // 图片更宽，高度填满，宽度被裁剪
-                          imageWidth = containerRect.height * imageRatio;
-                          imageHeight = containerRect.height;
-                          imageLeft = (containerRect.width - imageWidth) / 2;
+                          imageWidth = realContainerHeight * imageRatio;
+                          imageHeight = realContainerHeight;
+                          imageLeft = (realContainerWidth - imageWidth) / 2;
                           imageTop = 0;
                         } else {
                           // 图片更高，宽度填满，高度被裁剪
-                          imageWidth = containerRect.width;
-                          imageHeight = containerRect.width / imageRatio;
+                          imageWidth = realContainerWidth;
+                          imageHeight = realContainerWidth / imageRatio;
                           imageLeft = 0;
-                          imageTop = (containerRect.height - imageHeight) / 2;
+                          imageTop = (realContainerHeight - imageHeight) / 2;
                         }
                       }
 
@@ -515,6 +540,7 @@ Component({
       // 获取锚点大小（百分比，相对于图片宽度）
       const anchorSizePercent = anchor.style?.size || 8;
 
+      // 注意：不需要使用缩放因子，因为 imageWidth 和 imageHeight 已经是补偿后的真实尺寸
       // 计算弹窗偏移量（锚点高度的一半，转换为相对于图片高度的百分比）
       let tooltipOffset = anchorSizePercent / 2; // 默认值
       if (imageWidth && imageHeight) {

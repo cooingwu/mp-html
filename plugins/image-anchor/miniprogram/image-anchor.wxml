@@ -26,6 +26,7 @@
       animation="{{animation}}"
       image-width="{{imageWidth}}"
       image-height="{{imageHeight}}"
+      container-scale-factor="{{containerScaleFactor}}"
       bindanchortap="onAnchorTap"/>
   </view>
   <!-- 容器内弹窗 - 绝对定位，相对于锚点位置 -->
