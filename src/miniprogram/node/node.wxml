@@ -64,6 +64,39 @@
   <!-- 音频 -->
   <audio wx:elif="{{n.name==='audio'}}" id="{{n.attrs.id}}" class="{{n.attrs.class}}" style="{{n.attrs.style}}" author="{{n.attrs.author}}" controls="{{n.attrs.controls}}" loop="{{n.attrs.loop}}" name="{{n.attrs.name}}" poster="{{n.attrs.poster}}" src="{{n.src[ctrl[i]||0]}}" data-i="{{i}}" bindplay="play" binderror="mediaError" />
   <!-- #endif -->
+  <!-- 折叠区域 summary -->
+  <view wx:elif="{{n.name==='summary'}}" class="_summary" data-i="{{i}}" catchtap="detailToggle">
+    <view class="_summary-arrow {{ctrl['dt_'+i]?'_summary-arrow-open':''}}">
+      <text style="font-size:10px;color:#808080;line-height:1">▶</text>
+    </view>
+    <view class="_summary-text">
+      <!-- #ifdef MP-WEIXIN || MP-QQ -->
+      <node childs="{{n.children}}" opts="{{opts}}" />
+      <!-- #endif -->
+      <!-- #ifdef MP-ALIPAY || MP-TOUTIAO -->
+      <template is="node" data="{{childs:n.children,path:i+'_',opts:opts,ctrl:ctrl}}"></template>
+      <!-- #endif -->
+      <!-- #ifdef MP-BAIDU -->
+      <block wx:for="{{n.children}}" wx:key="index">
+        <template is="el" data="{{n:item,i:i+'_'+index,opts:opts,ctrl:ctrl}}"></template>
+      </block>
+      <!-- #endif -->
+    </view>
+  </view>
+  <!-- 折叠区域内容 -->
+  <view wx:elif="{{n.name==='details-content'}}" class="_details-content" style="{{ctrl['dt_'+i]?'':'display:none'}}">
+    <!-- #ifdef MP-WEIXIN || MP-QQ -->
+    <node childs="{{n.children}}" opts="{{opts}}" />
+    <!-- #endif -->
+    <!-- #ifdef MP-ALIPAY || MP-TOUTIAO -->
+    <template is="node" data="{{childs:n.children,path:i+'_',opts:opts,ctrl:ctrl}}"></template>
+    <!-- #endif -->
+    <!-- #ifdef MP-BAIDU -->
+    <block wx:for="{{n.children}}" wx:key="index">
+      <template is="el" data="{{n:item,i:i+'_'+index,opts:opts,ctrl:ctrl}}"></template>
+    </block>
+    <!-- #endif -->
+  </view>
   <!-- insert -->
   <!-- 富文本 -->
   <rich-text wx:else id="{{n.attrs.id}}" mp-weixin:mp-qq:mp-baidu:mp-toutiao:style="{{n.f}}" mp-alipay:style="display:inline;{{n.f}}" mp-baidu:selectable="{{opts[4]}}" mp-weixin:user-select="{{opts[4]}}" nodes="{{[n]}}" />

@@ -294,6 +294,34 @@ Component({
           errMsg: e.detail.errMsg
         })
       }
+    },
+
+    /**
+     * @description 折叠区域切换展开/收起
+     * @param {Event} e
+     */
+    detailToggle (e) {
+      const i = e.currentTarget.dataset.i
+      // summary 和 details-content 共享同一个 key（基于 summary 路径）
+      const key = 'dt_' + i
+      const isOpen = this.data.ctrl[key]
+      const data = {
+        ['ctrl.' + key]: isOpen ? 0 : 1
+      }
+      // 同时更新 details-content 节点的 key（它是 summary 的下一个兄弟）
+      // 将路径最后一段 +1 得到 details-content 的路径
+      const lastUnderscore = i.lastIndexOf('_')
+      let contentI
+      if (lastUnderscore !== -1) {
+        const prefix = i.substring(0, lastUnderscore)
+        const index = parseInt(i.substring(lastUnderscore + 1))
+        contentI = prefix + '_' + (index + 1)
+      } else {
+        contentI = '' + (parseInt(i) + 1)
+      }
+      const contentKey = 'dt_' + contentI
+      data['ctrl.' + contentKey] = isOpen ? 0 : 1
+      this.setData(data)
     }
   }
 })

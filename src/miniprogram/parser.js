@@ -5,7 +5,7 @@
 // 配置
 const config = {
   // 信任的标签（保持标签名不变）
-  trustTags: makeMap('a,abbr,ad,audio,b,blockquote,br,code,col,colgroup,dd,del,dl,dt,div,em,fieldset,h1,h2,h3,h4,h5,h6,hr,i,img,ins,label,legend,li,ol,p,q,ruby,rt,source,span,strong,sub,sup,table,tbody,td,tfoot,th,thead,tr,title,ul,video'),
+  trustTags: makeMap('a,abbr,ad,audio,b,blockquote,br,code,col,colgroup,dd,del,details,dl,dt,div,em,fieldset,h1,h2,h3,h4,h5,h6,hr,i,img,ins,label,legend,li,ol,p,q,ruby,rt,source,span,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,tr,title,ul,video'),
 
   // 块级标签（转为 div，其他的非信任标签转为 span）
   blockTags: makeMap('address,article,aside,body,caption,center,cite,footer,header,html,nav,pre,section'),
@@ -965,6 +965,44 @@ Parser.prototype.popNode = function () {
         this.stack[i].flag = 1 // 指示含有合并单元格
       }
     }
+  } else if (node.name === 'details') {
+    // details 折叠区域处理
+    // 将 summary 提取出来，其余内容用 div[data-type="details-content"] 包裹
+    let summaryIndex = -1
+    for (let i = 0; i < children.length; i++) {
+      if (children[i].name === 'summary') {
+        summaryIndex = i
+        break
+      }
+    }
+    let summaryChildren = []
+    let contentChildren = []
+    if (summaryIndex !== -1) {
+      summaryChildren = children[summaryIndex].children || []
+      for (let i = 0; i < children.length; i++) {
+        if (i !== summaryIndex) {
+          contentChildren.push(children[i])
+        }
+      }
+    } else {
+      contentChildren = children
+    }
+    // 重新组织：summary + content wrapper
+    node.children = [
+      {
+        name: 'summary',
+        attrs: {},
+        children: summaryChildren
+      },
+      {
+        name: 'details-content',
+        attrs: {},
+        children: contentChildren
+      }
+    ]
+    // 标记需要暴露（因为 summary 需要处理点击事件）
+    this.expose()
+    node.c = 1
   } else if (node.name === 'ruby') {
     // 转换 ruby
     node.name = 'span'
