@@ -185,6 +185,17 @@
   transition: transform 0.2s;
 }
 
+._summary-arrow::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid #000;
+  border-top: 1.5px solid #000;
+  transform: rotate(45deg);
+  margin-left: -2px;
+}
+
 ._summary-arrow-open {
   transform: rotate(90deg);
 }

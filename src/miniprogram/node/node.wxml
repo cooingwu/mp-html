@@ -66,9 +66,7 @@
   <!-- #endif -->
   <!-- 折叠区域 summary -->
   <view wx:elif="{{n.name==='summary'}}" class="_summary" data-i="{{i}}" catchtap="detailToggle">
-    <view class="_summary-arrow {{ctrl['dt_'+i]?'_summary-arrow-open':''}}">
-      <text style="font-size:10px;color:#808080;line-height:1">▶</text>
-    </view>
+    <view class="_summary-arrow {{ctrl['dt_'+i]?'_summary-arrow-open':''}}"></view>
     <view class="_summary-text">
       <!-- #ifdef MP-WEIXIN || MP-QQ -->
       <node childs="{{n.children}}" opts="{{opts}}" />
