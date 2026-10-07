@@ -92,6 +92,9 @@ Component({
     iconSvg: '', // 图标 SVG
     iconColor: '#ffffff',
     labelPosition: 'right', // 说明文本位置
+    labelInside: false, // 说明文本是否内嵌
+    containerSizeStyle: '', // 锚点容器尺寸样式（autoSize 时用 min-width/min-height）
+    insideTextStyle: '', // 内嵌文字样式
     pulseColor: '#ff4d4f', // 脉冲动画颜色
     isPc: false, // 是否是 PC 端
     isSkyline: false, // 是否使用 Skyline 渲染引擎
@@ -176,6 +179,56 @@ Component({
         }
       }
 
+      let labelInside = anchor.label?.position === 'inside' && styleType === 'shape'
+
+      // ---- shape 内嵌文字配置解析（insideConfig） ----
+      const scaleFactor = this.data.containerScaleFactor || 1
+      const fontSize = 16 / scaleFactor
+      const ic = anchor.label?.insideConfig || {}
+      const insidePadding = (ic.padding ?? 4) / scaleFactor
+      const insideWrap = ic.wrap ?? false
+      const insideMaxChars = ic.maxCharsPerLine ?? 10
+      const insideMaxLines = ic.maxLines ?? 2
+      const insideAutoSize = ic.autoSize ?? true
+
+      let containerSizeStyle = `width: ${size}px; height: ${size}px;`
+      let insideTextStyle = ''
+
+      if (labelInside) {
+        // 文字基础样式
+        insideTextStyle = `font-size: ${fontSize}px; color: #ffffff; padding: ${insidePadding}px; box-sizing: border-box;`
+
+        if (insideAutoSize) {
+          // 自动适配宽高：容器用 min 尺寸让内容撑开
+          containerSizeStyle = `min-width: ${size}px; min-height: ${size}px;`
+          if (insideWrap) {
+            // 换行：用 max-width 控制每行字符数
+            insideTextStyle += ` white-space: normal; word-break: break-all;`
+            if (insideMaxChars > 0) {
+              insideTextStyle += ` max-width: ${insideMaxChars * fontSize + insidePadding * 2}px;`
+            }
+            if (insideMaxLines > 0) {
+              // 超出行数截断
+              insideTextStyle += ` display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: ${insideMaxLines}; overflow: hidden;`
+            }
+          } else {
+            // 不换行：宽度自适应
+            insideTextStyle += ` white-space: nowrap;`
+          }
+        } else {
+          // 固定宽高：文字在 shape 内受约束
+          if (insideWrap) {
+            insideTextStyle += ` white-space: normal; word-break: break-all; overflow: hidden;`
+            if (insideMaxLines > 0) {
+              insideTextStyle += ` display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: ${insideMaxLines};`
+            }
+          } else {
+            // 单行 + 省略号
+            insideTextStyle += ` white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`
+          }
+        }
+      }
+
       // 设置数据
       this.setData({
         size,
@@ -185,11 +238,14 @@ Component({
         shapeClass,
         iconSvg,
         iconColor,
-        labelPosition: anchor.label?.position || 'right'
+        labelPosition: styleType !== 'shape' && anchor.label?.position === 'inside' ? 'right' : (anchor.label?.position || 'right'),
+        labelInside,
+        containerSizeStyle,
+        insideTextStyle,
       })
 
       // 延迟计算 label 位置（等待渲染完成后获取实际尺寸）
-      if (anchor.label?.text) {
+      if (anchor.label?.text && !labelInside) {
         setTimeout(() => {
           this.calculateAndUpdateLabelPosition()
         }, 50)

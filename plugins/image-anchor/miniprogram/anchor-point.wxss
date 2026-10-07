@@ -69,6 +69,21 @@
   box-sizing: border-box;
 }
 
+.anchor-shape.label-inside {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* 自动适配宽高时（外层容器用 min-width/min-height，shape 随文字撑开） */
+.anchor-point.label-inside-auto .anchor-shape.label-inside {
+  width: auto;
+  height: auto;
+  min-width: 100%;
+  min-height: 100%;
+}
+
 .shape-circle {
   border-radius: 50%;
 }

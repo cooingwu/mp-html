@@ -5,7 +5,7 @@
 <view
   id="anchor-point"
   class="anchor-point {{styleType}}"
-  style="left: {{anchor.position.x}}%; top: {{anchor.position.y}}%; width: {{size}}px; height: {{size}}px;"
+  style="left: {{anchor.position.x}}%; top: {{anchor.position.y}}%; {{containerSizeStyle || 'width: ' + size + 'px; height: ' + size + 'px;'}}"
   catch:tap="onTap"
   catch:touchstart="onTap"
   bind:touchmove="cancelTap"
@@ -19,9 +19,14 @@
 
   <view
     wx:elif="{{styleType === 'shape'}}"
-    class="anchor-shape {{shapeClass}} {{animation ? 'pulse' : ''}}"
+    class="anchor-shape {{shapeClass}} {{animation ? 'pulse' : ''}} {{labelInside ? 'label-inside' : ''}}"
     style="{{shapeStyle}}"
-  ></view>
+  >
+    <text
+      wx:if="{{labelInside}}"
+      style="{{insideTextStyle}}"
+    >{{anchor.label.text}}</text>
+  </view>
 
   <view
     wx:elif="{{styleType === 'icon'}}"
@@ -44,7 +49,7 @@
 
   <!-- 说明文本 -->
   <view
-    wx:if="{{anchor.label && anchor.label.text}}"
+    wx:if="{{anchor.label && anchor.label.text && !labelInside}}"
     class="anchor-label label-{{labelPosition}}"
     style="font-size: {{16 / (containerScaleFactor || 1)}}px; padding: {{2 / (containerScaleFactor || 1)}}px {{8 / (containerScaleFactor || 1)}}px; border-radius: {{10 / (containerScaleFactor || 1)}}px; max-width: {{100 / (containerScaleFactor || 1)}}px;"
   >
