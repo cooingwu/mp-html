@@ -2,7 +2,10 @@
  * 锚点组件样式
  */
 
-/* 锚点基础样式 */
+/* 锚点基础样式：不设圆角/阴影/背景——预设 shape、image、icon 各自带样式；
+   曾经的 border-radius:50% + box-shadow 会让所有预设锚点背后出现一圈
+   圆形半透明阴影（阴影跟随容器圆角，方形 shape 也呈圆形光晕）。
+   默认红点的圆角与阴影由 .anchor-default 自带 */
 .anchor-point {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -12,8 +15,6 @@
   justify-content: center;
   cursor: pointer;
   box-sizing: border-box;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .anchor-point:active {
@@ -40,8 +41,6 @@
 /* 图片类型 */
 .anchor-point.image {
   background: transparent;
-  border-radius: 0;
-  box-shadow: none;
 }
 
 .anchor-image {
@@ -49,20 +48,7 @@
   height: 100%;
 }
 
-/* 图形类型 - 在外层设置 border-radius */
-.anchor-point.shape-circle {
-  border-radius: 50%;
-}
-
-.anchor-point.shape-square {
-  border-radius: 4px;
-}
-
-.anchor-point.shape-rounded {
-  border-radius: 8px;
-}
-
-/* 图形内容 */
+/* 图形内容（圆角由内层的 .shape-circle/.shape-square/.shape-rounded 提供） */
 .anchor-shape {
   width: 100%;
   height: 100%;
@@ -74,14 +60,8 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-}
-
-/* 自动适配宽高时（外层容器用 min-width/min-height，shape 随文字撑开） */
-.anchor-point.label-inside-auto .anchor-shape.label-inside {
-  width: auto;
-  height: auto;
-  min-width: 100%;
-  min-height: 100%;
+  /* 估算尺寸与实际渲染有偏差时，超出部分裁切在 shape 内 */
+  overflow: hidden;
 }
 
 .shape-circle {

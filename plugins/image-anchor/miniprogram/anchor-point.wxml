@@ -12,14 +12,14 @@
 >
   <image
     wx:if="{{styleType === 'image'}}"
-    class="anchor-image {{animation ? 'pulse' : ''}}"
+    class="anchor-image {{animation && anchor.animation !== false ? 'pulse' : ''}}"
     src="{{styleImage}}"
     mode="aspectFit"
   />
 
   <view
     wx:elif="{{styleType === 'shape'}}"
-    class="anchor-shape {{shapeClass}} {{animation ? 'pulse' : ''}} {{labelInside ? 'label-inside' : ''}}"
+    class="anchor-shape {{shapeClass}} {{animation && anchor.animation !== false ? 'pulse' : ''}} {{labelInside ? 'label-inside' : ''}}"
     style="{{shapeStyle}}"
   >
     <text
@@ -30,7 +30,7 @@
 
   <view
     wx:elif="{{styleType === 'icon'}}"
-    class="anchor-icon {{animation ? 'pulse' : ''}}"
+    class="anchor-icon {{animation && anchor.animation !== false ? 'pulse' : ''}}"
   >
     <image
       class="icon-svg"
@@ -41,7 +41,7 @@
 
   <view
     wx:else
-    class="anchor-default {{animation ? 'pulse' : ''}}"
+    class="anchor-default {{animation && anchor.animation !== false ? 'pulse' : ''}}"
     style="background-color: {{anchor.style.color || '#ff4d4f'}};"
   >
     <text class="anchor-order" style="font-size: {{16 / (containerScaleFactor || 1)}}px;">{{anchor.order || ''}}</text>

@@ -23,6 +23,40 @@ const ICON_SVG_MAP = {
  * @param {String} color 颜色值
  * @returns {String} SVG data URL
  */
+/**
+ * 单字符宽度系数（相对 fontSize 的 em 值），与管理端 anchor-inside.ts 保持一致：
+ * 全角 1（精确）；半角按类别放量估算——大写 0.72、数字/小写 0.62、空格 0.35、其余 0.55。
+ * 宁可偏宽：估算偏窄会导致浏览器提前折行，行数比预估多而被 max-height 裁掉
+ * @param {String} ch 单个字符
+ * @returns {Number} 宽度系数
+ */
+function charWidthUnit(ch) {
+  if (/[\u2E80-\u9FFF\uF900-\uFAFF\uFF00-\uFFEF\u3000-\u303F]/.test(ch)) return 1
+  if (ch >= 'A' && ch <= 'Z') return 0.72
+  if (ch === ' ') return 0.35
+  if ((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')) return 0.62
+  return 0.55
+}
+
+// 离屏 canvas 精确测宽（同步，基础库 >= 2.16.1）。
+// app.wxss 全局 font-family: sans-serif，canvas 用同一字体测量与实际渲染一致；
+// 创建失败（低版本基础库等）返回 null，调用方回退 charWidthUnit 估算
+let textMeasureCtx = null
+function getTextWidth(text, fontSize) {
+  try {
+    if (!textMeasureCtx) {
+      const canvas = wx.createOffscreenCanvas({ type: '2d', width: 1, height: 1 })
+      if (!canvas || !canvas.getContext) return null
+      textMeasureCtx = canvas.getContext('2d')
+    }
+    if (!textMeasureCtx) return null
+    textMeasureCtx.font = fontSize + 'px sans-serif'
+    return textMeasureCtx.measureText(text).width
+  } catch (e) {
+    return null
+  }
+}
+
 function getColoredIconSvg(iconName, color) {
   const template = ICON_SVG_MAP[iconName]
   if (!template) return ''
@@ -93,7 +127,7 @@ Component({
     iconColor: '#ffffff',
     labelPosition: 'right', // 说明文本位置
     labelInside: false, // 说明文本是否内嵌
-    containerSizeStyle: '', // 锚点容器尺寸样式（autoSize 时用 min-width/min-height）
+    containerSizeStyle: '', // 锚点容器尺寸样式（inside autoSize 时由文字量算出显式宽高）
     insideTextStyle: '', // 内嵌文字样式
     pulseColor: '#ff4d4f', // 脉冲动画颜色
     isPc: false, // 是否是 PC 端
@@ -129,11 +163,14 @@ Component({
       const { anchor, styles, imageWidth, isPC } = this.data
       if (!anchor || !anchor.style) return
 
-      // 计算锚点尺寸
+      // 计算锚点尺寸：宽/高独立百分比（均以图片宽度为基准），旧数据只有 size 时宽高一致
+      const minSize = isPC ? 24 : 20
       let size = (imageWidth * (anchor.style.size || 8)) / 100
-      // 最小尺寸限制
-      if (isPC && size < 24) size = 24
-      if (!isPC && size < 20) size = 20
+      if (size < minSize) size = minSize
+      let baseW = (imageWidth * (anchor.style.width ?? anchor.style.size ?? 8)) / 100
+      let baseH = (imageWidth * (anchor.style.height ?? anchor.style.size ?? 8)) / 100
+      if (baseW < minSize) baseW = minSize
+      if (baseH < minSize) baseH = minSize
 
       // 获取预设样式
       const preset = anchor.style.presetId
@@ -147,6 +184,7 @@ Component({
       let iconSvg = ''
       let iconColor = '#ffffff'
       let pulseColor = '#ff4d4f' // 脉冲动画颜色
+      let shapeBorderWidth = 0 // shape 边框宽度（占 border-box 内侧，量算尺寸时须补偿）
 
       if (preset) {
         styleType = preset.type || 'shape'
@@ -160,6 +198,7 @@ Component({
           if (shape.color) styleArr.push(`background-color: ${shape.color}`)
           if (shape.borderWidth && shape.borderColor) {
             styleArr.push(`border: ${shape.borderWidth}px solid ${shape.borderColor}`)
+            shapeBorderWidth = shape.borderWidth
           }
           shapeStyle = styleArr.join(';')
           pulseColor = shape.color || '#ff4d4f'
@@ -183,48 +222,74 @@ Component({
 
       // ---- shape 内嵌文字配置解析（insideConfig） ----
       const scaleFactor = this.data.containerScaleFactor || 1
-      const fontSize = 16 / scaleFactor
       const ic = anchor.label?.insideConfig || {}
-      const insidePadding = (ic.padding ?? 4) / scaleFactor
+      const fontSize = (ic.fontSize ?? 16) / scaleFactor
+      // 兼容旧数据：单值 padding 同时作为横向/纵向内边距
+      const insidePaddingX = (ic.paddingX ?? ic.padding ?? 4) / scaleFactor
+      const insidePaddingY = (ic.paddingY ?? ic.padding ?? 4) / scaleFactor
       const insideWrap = ic.wrap ?? false
       const insideMaxChars = ic.maxCharsPerLine ?? 10
       const insideMaxLines = ic.maxLines ?? 2
       const insideAutoSize = ic.autoSize ?? true
 
-      let containerSizeStyle = `width: ${size}px; height: ${size}px;`
+      let containerSizeStyle = `width: ${baseW}px; height: ${baseH}px;`
       let insideTextStyle = ''
 
       if (labelInside) {
-        // 文字基础样式
-        insideTextStyle = `font-size: ${fontSize}px; color: #ffffff; padding: ${insidePadding}px; box-sizing: border-box;`
+        const lineHeight = Math.round(fontSize * 1.5)
+        insideTextStyle = `font-size: ${fontSize}px; line-height: ${lineHeight}px; color: #ffffff; padding: ${insidePaddingY}px ${insidePaddingX}px; box-sizing: border-box; text-align: center;`
 
-        if (insideAutoSize) {
-          // 自动适配宽高：容器用 min 尺寸让内容撑开
-          containerSizeStyle = `min-width: ${size}px; min-height: ${size}px;`
-          if (insideWrap) {
-            // 换行：用 max-width 控制每行字符数
-            insideTextStyle += ` white-space: normal; word-break: break-all;`
-            if (insideMaxChars > 0) {
-              insideTextStyle += ` max-width: ${insideMaxChars * fontSize + insidePadding * 2}px;`
-            }
-            if (insideMaxLines > 0) {
-              // 超出行数截断
-              insideTextStyle += ` display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: ${insideMaxLines}; overflow: hidden;`
-            }
-          } else {
-            // 不换行：宽度自适应
-            insideTextStyle += ` white-space: nowrap;`
+        // 分行由我们决定：按"每行最多 N 字符"切块（字符数语义，即配置的本义），
+        // 再被 maxLines 截断；浏览器只在给定 max-width 内 break-all 折行，
+        // 每块都 ≤ max-width，浏览器行数不会超过切块数，不会被 max-height 裁掉
+        const text = anchor.label?.text || ''
+        const chars = [...text]
+        const segments = []
+        if (insideWrap && insideMaxChars > 0) {
+          for (let i = 0; i < chars.length; i += insideMaxChars) {
+            segments.push(chars.slice(i, i + insideMaxChars).join(''))
           }
         } else {
-          // 固定宽高：文字在 shape 内受约束
-          if (insideWrap) {
-            insideTextStyle += ` white-space: normal; word-break: break-all; overflow: hidden;`
-            if (insideMaxLines > 0) {
-              insideTextStyle += ` display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: ${insideMaxLines};`
-            }
-          } else {
-            // 单行 + 省略号
-            insideTextStyle += ` white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`
+          segments.push(text)
+        }
+        const visibleSegments = insideWrap && insideMaxLines > 0 ? segments.slice(0, insideMaxLines) : segments
+        const lineCount = visibleSegments.length
+
+        // 行宽 = 可见行最大宽度：优先离屏 canvas 精确测量（+1px 容纳亚像素舍入），
+        // 全部行可测才用精确值，否则整体回退系数估算（+0.25em 余量，宁宽勿窄）
+        const widths = visibleSegments.map(seg => getTextWidth(seg, fontSize))
+        let textW
+        if (widths.every(w => w != null)) {
+          textW = Math.ceil(Math.max(...widths)) + 1
+        } else {
+          const est = visibleSegments.map(seg => [...seg].reduce((u, ch) => u + charWidthUnit(ch), 0))
+          textW = Math.ceil(Math.max(...est) * fontSize + fontSize * 0.25)
+        }
+        const textH = Math.ceil(lineCount * lineHeight)
+
+        if (insideAutoSize && text) {
+          // 宽高完全由文字量算决定（不与手动拖拽尺寸取 max，保证开关打开即回到适配尺寸），
+          // 仅保留最小可点击尺寸下限；边框占 border-box 内侧，须补进尺寸避免压住文字
+          const w = Math.max(minSize, textW + insidePaddingX * 2 + shapeBorderWidth * 2)
+          const h = Math.max(minSize, textH + insidePaddingY * 2 + shapeBorderWidth * 2)
+          containerSizeStyle = `width: ${w}px; height: ${h}px;`
+        }
+
+        if (insideWrap) {
+          // 换行：max-width 控制每行字符数，-webkit-line-clamp + max-height 双保险截断行数
+          insideTextStyle += ` white-space: normal; word-break: break-all;`
+          if (insideMaxChars > 0) {
+            insideTextStyle += ` max-width: ${textW + insidePaddingX * 2}px;`
+          }
+          if (insideMaxLines > 0) {
+            insideTextStyle += ` display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: ${insideMaxLines}; max-height: ${textH + insidePaddingY * 2}px; overflow: hidden;`
+          }
+        } else {
+          // 不换行
+          insideTextStyle += ` white-space: nowrap;`
+          if (!insideAutoSize) {
+            // 固定宽高时单行省略
+            insideTextStyle += ` overflow: hidden; text-overflow: ellipsis;`
           }
         }
       }
