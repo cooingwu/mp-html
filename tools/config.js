@@ -11,15 +11,16 @@ module.exports = {
     // 'editable',  // 内容编辑
     // 'emoji',     // 小表情
     // 'highlight', // 代码高亮
-    // 'markdown',  // 解析 md
+    'markdown',  // 解析 md
     // 'latex',     // 解析 latex
     // 'search',    // 关键词搜索
     // 'style',     // 解析 style 标签
     // 'txv-video', // 使用腾讯视频
     // 'img-cache',  // 图片缓存
     // 'card',      // 卡片展示
-    // 'image-anchor', // 图片锚点
-    // 'headings',   // 文章目录
+    'image-anchor',   // 图片锚点
+    'headings',       // 文章目录
+    'interactive-flow', // 互动流程组件
   ],
 
   /**

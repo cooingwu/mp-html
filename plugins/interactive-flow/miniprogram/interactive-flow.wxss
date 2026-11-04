@@ -1,0 +1,421 @@
+/**
+ * 互动流程组件样式
+ * 全部颜色走 CSS 变量（--if-*），未配置主题时使用内置深色金默认值，
+ * 书籍级主题（publications.interactiveTheme）由组件根节点 style 注入覆盖
+ */
+
+.iflow {
+  --if-primary: #e2c07c;
+  --if-accent: #c98b5a;
+  --if-bg: #1c1a17;
+  --if-text: #f3e6c8;
+  --if-muted: #9a8f7d;
+  /* 次级表面：卡片实底 / 柔和叠加底 / 未完成线条（主题可覆盖，见 buildThemeStyle） */
+  --if-surface: #26231e;
+  --if-soft: rgba(255, 255, 255, 0.04);
+  --if-line: #555;
+}
+
+/* ===== 占位小卡（teaser） ===== */
+.if-teaser {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 26rpx;
+  margin: 24rpx 0;
+  background: var(--if-bg);
+  border: 1px solid var(--if-primary);
+  border-radius: 28rpx;
+}
+
+.if-teaser-hover {
+  opacity: 0.85;
+}
+
+.if-teaser-badge {
+  flex-shrink: 0;
+  padding: 4rpx 14rpx;
+  margin-right: 22rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: var(--if-bg);
+  background: var(--if-primary);
+  border-radius: 12rpx;
+}
+
+.if-teaser-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.if-teaser-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--if-text);
+}
+
+.if-teaser-sub {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: var(--if-muted);
+}
+
+.if-teaser-go {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  font-size: 26rpx;
+  color: var(--if-primary);
+}
+
+/* ===== 完整流程 ===== */
+.iflow-full {
+  position: relative;
+  overflow: hidden;
+  background: var(--if-bg);
+  border: 1px solid rgba(226, 192, 124, 0.3);
+  border-radius: 32rpx;
+}
+
+.if-head {
+  padding: 36rpx 32rpx 8rpx;
+  text-align: center;
+}
+
+.if-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: var(--if-text);
+}
+
+.if-sub {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: var(--if-muted);
+}
+
+.if-close {
+  position: absolute;
+  top: 24rpx;
+  right: 28rpx;
+  z-index: 10;
+  padding: 8rpx;
+  font-size: 36rpx;
+  color: var(--if-primary);
+  opacity: 0.7;
+}
+
+/* 步骤条 */
+.if-stepper {
+  display: flex;
+  align-items: flex-start;
+  padding: 28rpx 56rpx 0;
+  margin-bottom: 28rpx;
+}
+
+.if-snode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.if-sdot {
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+}
+
+.if-sdot.cur {
+  background: var(--if-primary);
+}
+
+.if-sdot.done {
+  background: transparent;
+  border: 3rpx solid var(--if-primary);
+}
+
+.if-sdot.todo {
+  background: var(--if-line, #555);
+}
+
+.if-sline {
+  flex: 1;
+  height: 4rpx;
+  margin-top: 12rpx;
+  background: var(--if-line, #333);
+}
+
+.if-sline.on {
+  background: var(--if-primary);
+}
+
+.if-slabel {
+  margin-top: 14rpx;
+  font-size: 26rpx;
+  color: #555;
+}
+
+.if-slabel.on {
+  color: var(--if-primary);
+}
+
+/* 步骤内容 */
+.if-step {
+  padding: 0 32rpx 28rpx;
+}
+
+.if-step-title {
+  margin-bottom: 24rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  text-align: center;
+  color: var(--if-text);
+}
+
+/* 场景卡 */
+.if-scene {
+  display: flex;
+  align-items: center;
+  min-height: 140rpx;
+  padding: 20rpx 28rpx;
+  margin-bottom: 20rpx;
+  background: var(--if-surface, #26231e);
+  border-radius: 24rpx;
+}
+
+.if-scene-hover {
+  opacity: 0.85;
+}
+
+.if-scene-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.if-scene-tag {
+  margin-bottom: 6rpx;
+  font-size: 24rpx;
+  letter-spacing: 2rpx;
+  color: var(--if-primary);
+}
+
+.if-scene-name {
+  font-size: 32rpx;
+  color: var(--if-text);
+}
+
+.if-scene-desc {
+  margin-top: 6rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: var(--if-muted);
+}
+
+.if-scene-arrow {
+  flex-shrink: 0;
+  margin-left: 20rpx;
+  font-size: 32rpx;
+  color: var(--if-muted);
+}
+
+/* 策略选项 */
+.if-caption {
+  margin-bottom: 20rpx;
+  font-size: 30rpx;
+  color: var(--if-primary);
+}
+
+.if-situation {
+  padding: 24rpx 28rpx;
+  margin-bottom: 24rpx;
+  font-size: 26rpx;
+  line-height: 1.8;
+  color: var(--if-text);
+  background: var(--if-soft, rgba(255, 255, 255, 0.04));
+  border-radius: 24rpx;
+  opacity: 0.9;
+}
+
+.if-opt {
+  padding: 24rpx 28rpx;
+  margin-bottom: 20rpx;
+  background: var(--if-surface, #211e1a);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24rpx;
+}
+
+.if-opt-hover {
+  opacity: 0.85;
+}
+
+.if-opt-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.if-opt-dot {
+  flex-shrink: 0;
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 20rpx;
+  border: 2rpx solid var(--if-primary);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.if-opt-dot.sel {
+  background: var(--if-primary);
+}
+
+.if-opt-badge {
+  flex-shrink: 0;
+  padding: 4rpx 18rpx;
+  margin-right: 24rpx;
+  font-size: 26rpx;
+  line-height: 1.4;
+  border-radius: 14rpx;
+}
+
+/* 选项徽章轮换三色（按序号取模） */
+.if-opt-badge.b0 {
+  color: var(--if-primary);
+  background: rgba(226, 192, 124, 0.15);
+  border: 1px solid var(--if-primary);
+}
+
+.if-opt-badge.b1 {
+  color: var(--if-muted);
+  background: var(--if-soft, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--if-line, #555);
+}
+
+.if-opt-badge.b2 {
+  color: var(--if-accent);
+  background: rgba(201, 139, 90, 0.15);
+  border: 1px solid var(--if-accent);
+}
+
+.if-opt-text {
+  font-size: 28rpx;
+  line-height: 1.7;
+  color: var(--if-text);
+}
+
+/* 结果 */
+.if-result-title {
+  margin-bottom: 16rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: var(--if-primary);
+}
+
+.if-result-body {
+  font-size: 28rpx;
+  line-height: 1.8;
+  color: var(--if-text);
+  opacity: 0.92;
+}
+
+/* 富文本字段（加粗/颜色等局部样式） */
+.if-situation rich-text,
+.if-opt-text rich-text,
+.if-result-body rich-text,
+.if-block-title rich-text,
+.if-block-body rich-text {
+  display: block;
+  width: 100%;
+}
+
+/* 附加解读块（通用：标题/内容/色调由数据决定） */
+.if-block {
+  padding: 24rpx 28rpx;
+  margin-top: 24rpx;
+  background: rgba(127, 127, 127, 0.08);
+  border: 1px solid rgba(127, 127, 127, 0.28);
+  border-radius: 24rpx;
+}
+
+.if-block-title {
+  margin-bottom: 10rpx;
+  font-size: 26rpx;
+  font-weight: bold;
+  color: var(--if-text);
+  opacity: 0.85;
+}
+
+.if-block-body {
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: var(--if-muted);
+}
+
+/* 强调色调（如 概念卡） */
+.if-block.emphasis {
+  background: rgba(226, 192, 124, 0.06);
+  border-color: rgba(226, 192, 124, 0.35);
+}
+
+.if-block.emphasis .if-block-title {
+  color: var(--if-primary);
+  opacity: 1;
+}
+
+.if-block.emphasis .if-block-body {
+  color: var(--if-text);
+  opacity: 0.85;
+}
+
+/* 警示色调（如 代价卡） */
+.if-block.warning {
+  background: rgba(201, 139, 90, 0.08);
+  border-color: rgba(201, 139, 90, 0.4);
+}
+
+.if-block.warning .if-block-title {
+  color: var(--if-accent);
+  opacity: 1;
+}
+
+.if-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40rpx;
+}
+
+.if-action-btn {
+  padding: 20rpx 44rpx;
+  font-size: 26rpx;
+  line-height: 1;
+  border-radius: 999rpx;
+}
+
+.if-action-btn.left {
+  color: var(--if-text);
+  background: var(--if-soft, rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.if-action-btn.right {
+  color: var(--if-primary);
+  background: rgba(226, 192, 124, 0.08);
+  border: 1px solid rgba(226, 192, 124, 0.4);
+}
+
+.if-btn-hover {
+  opacity: 0.8;
+}
+
+/* 底部操作条 */
+.if-actionbar {
+  min-height: 72rpx;
+  padding: 16rpx 32rpx 24rpx;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.if-prev {
+  display: inline-block;
+  font-size: 28rpx;
+  color: #999;
+}

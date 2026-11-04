@@ -1,0 +1,111 @@
+<view wx:if="{{flow}}" class="iflow {{variant === 'teaser' ? 'iflow-teaser' : 'iflow-full'}}" style="{{themeStyle}}">
+
+  <!-- 占位小卡（popup 布局的正文触发器） -->
+  <view wx:if="{{variant === 'teaser'}}" class="if-teaser" bind:tap="onTeaserTap" hover-class="if-teaser-hover">
+    <view class="if-teaser-badge">互动</view>
+    <view class="if-teaser-body">
+      <view class="if-teaser-title">{{flow.title || '互动推演'}}</view>
+      <view class="if-teaser-sub">{{flow.subtitle || '选情境 → 选策略 → 看结果'}}</view>
+    </view>
+    <view class="if-teaser-go">试一试 ›</view>
+  </view>
+
+  <!-- 完整流程（inline 原地交互 / 弹层内） -->
+  <block wx:else>
+    <view class="if-head">
+      <view wx:if="{{showClose}}" class="if-close" catch:tap="onClose">✕</view>
+      <view class="if-title">{{flow.title || '互动推演'}}</view>
+      <view wx:if="{{flow.subtitle}}" class="if-sub">{{flow.subtitle}}</view>
+    </view>
+
+    <!-- 步骤条（文案可通过 flow.labels 覆盖） -->
+    <view class="if-stepper">
+      <view class="if-snode">
+        <view class="if-sdot {{step === 0 ? 'cur' : (step > 0 ? 'done' : 'todo')}}"></view>
+        <view class="if-slabel {{step >= 0 ? 'on' : ''}}">{{flow.labels.step0 || '选场景'}}</view>
+      </view>
+      <view class="if-sline {{step > 0 ? 'on' : ''}}"></view>
+      <view class="if-snode">
+        <view class="if-sdot {{step === 1 ? 'cur' : (step > 1 ? 'done' : 'todo')}}"></view>
+        <view class="if-slabel {{step >= 1 ? 'on' : ''}}">{{flow.labels.step1 || '选策略'}}</view>
+      </view>
+      <view class="if-sline {{step > 1 ? 'on' : ''}}"></view>
+      <view class="if-snode">
+        <view class="if-sdot {{step === 2 ? 'cur' : 'todo'}}"></view>
+        <view class="if-slabel {{step >= 2 ? 'on' : ''}}">{{flow.labels.step2 || '看结果'}}</view>
+      </view>
+    </view>
+
+    <!-- 步骤一：选场景 -->
+    <view wx:if="{{step === 0}}" class="if-step">
+      <view class="if-step-title">{{flow.labels.step0Title || '选择推演场景'}}</view>
+      <view
+        wx:for="{{flow.scenes}}"
+        wx:key="index"
+        class="if-scene"
+        data-index="{{index}}"
+        bind:tap="onSceneTap"
+        hover-class="if-scene-hover"
+      >
+        <view class="if-scene-info">
+          <view class="if-scene-tag">场景{{index + 1}}：{{item.category}}</view>
+          <view class="if-scene-name">{{item.title}}</view>
+          <view wx:if="{{item.desc}}" class="if-scene-desc">{{item.desc}}</view>
+        </view>
+        <view class="if-scene-arrow">›</view>
+      </view>
+    </view>
+
+    <!-- 步骤二：选策略 -->
+    <view wx:if="{{step === 1 && sceneIndex >= 0}}" class="if-step">
+      <view class="if-caption">{{flow.scenes[sceneIndex].title}}</view>
+      <view wx:if="{{flow.scenes[sceneIndex].situation}}" class="if-situation"><rich-text nodes="{{flow.scenes[sceneIndex].situation}}" /></view>
+      <view
+        wx:for="{{flow.scenes[sceneIndex].options}}"
+        wx:key="index"
+        class="if-opt"
+        data-index="{{index}}"
+        bind:tap="onOptionTap"
+        hover-class="if-opt-hover"
+      >
+        <view class="if-opt-head">
+          <view class="if-opt-dot {{optionIndex === index ? 'sel' : ''}}"></view>
+          <view class="if-opt-badge b{{index % 3}}">{{item.label}}</view>
+        </view>
+        <view class="if-opt-text"><rich-text nodes="{{item.text}}" /></view>
+      </view>
+    </view>
+
+    <!-- 步骤三：看结果 -->
+    <view wx:if="{{step === 2 && sceneIndex >= 0 && optionIndex >= 0}}" class="if-step">
+      <block wx:for="{{flow.scenes[sceneIndex].options}}" wx:for-item="opt" wx:key="index">
+        <view wx:if="{{index === optionIndex}}">
+          <view class="if-result-title">{{flow.labels.resultTitle || '推演结果'}}</view>
+          <view class="if-result-body"><rich-text nodes="{{opt.result}}" /></view>
+
+          <!-- 附加解读块（标题/内容/色调由运营自由配置） -->
+          <view
+            wx:for="{{opt.blocks}}"
+            wx:for-item="blk"
+            wx:for-index="blockIndex"
+            wx:key="blockIndex"
+            class="if-block {{blk.tone || 'default'}}"
+          >
+            <view class="if-block-title"><rich-text nodes="{{blk.title}}" /></view>
+            <view class="if-block-body"><rich-text nodes="{{blk.body}}" /></view>
+          </view>
+
+          <view class="if-actions">
+            <view class="if-action-btn left" bind:tap="changeOption" hover-class="if-btn-hover">{{flow.labels.changeOption || '换个选项'}}</view>
+            <view class="if-action-btn right" bind:tap="changeScene" hover-class="if-btn-hover">{{flow.labels.changeScene || '换个场景'}}</view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 底部操作 -->
+    <view class="if-actionbar">
+      <view wx:if="{{step > 0}}" class="if-prev" bind:tap="onPrev">{{flow.labels.prevStep || '‹ 上一步'}}</view>
+    </view>
+  </block>
+</view>
