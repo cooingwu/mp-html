@@ -21,7 +21,7 @@
   display: flex;
   align-items: center;
   padding: 24rpx 26rpx;
-  margin: 24rpx 0;
+  margin: 32rpx 0;
   background: var(--if-bg);
   border: 1px solid var(--if-primary);
   border-radius: 28rpx;
@@ -75,6 +75,11 @@
   border-radius: 32rpx;
 }
 
+/* 正文内嵌（inline 布局）时与上下文本/组件的间距；popup 弹层内不加 */
+.iflow-inline {
+  margin: 32rpx 0;
+}
+
 .if-head {
   padding: 36rpx 32rpx 8rpx;
   text-align: center;
@@ -123,6 +128,7 @@
   width: 28rpx;
   height: 28rpx;
   border-radius: 50%;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .if-sdot.cur {
@@ -143,6 +149,7 @@
   height: 4rpx;
   margin-top: 12rpx;
   background: var(--if-line, #333);
+  transition: background-color 0.3s ease;
 }
 
 .if-sline.on {
@@ -162,6 +169,37 @@
 /* 步骤内容 */
 .if-step {
   padding: 0 32rpx 28rpx;
+}
+
+/* 切步方向动画：前进从右侧滑入、后退从左侧滑入（wx:if 重建节点时播放） */
+.if-anim-fwd {
+  animation: ifStepFwd 0.32s ease-out both;
+}
+
+.if-anim-back {
+  animation: ifStepBack 0.32s ease-out both;
+}
+
+@keyframes ifStepFwd {
+  from {
+    opacity: 0;
+    transform: translateX(48rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes ifStepBack {
+  from {
+    opacity: 0;
+    transform: translateX(-48rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .if-step-title {

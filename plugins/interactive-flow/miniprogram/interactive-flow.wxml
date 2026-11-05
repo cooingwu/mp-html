@@ -1,4 +1,5 @@
-<view wx:if="{{flow}}" class="iflow {{variant === 'teaser' ? 'iflow-teaser' : 'iflow-full'}}" style="{{themeStyle}}">
+<!-- iflow-inline：正文内嵌时的上下间距（popup 弹层内的 full 不加，避免面板内留白） -->
+<view wx:if="{{flow}}" class="iflow {{variant === 'teaser' ? 'iflow-teaser' : 'iflow-full'}}{{variant === 'full' && flow.layout !== 'popup' ? ' iflow-inline' : ''}}" style="{{themeStyle}}">
 
   <!-- 占位小卡（popup 布局的正文触发器） -->
   <view wx:if="{{variant === 'teaser'}}" class="if-teaser" bind:tap="onTeaserTap" hover-class="if-teaser-hover">
@@ -36,8 +37,8 @@
       </view>
     </view>
 
-    <!-- 步骤一：选场景 -->
-    <view wx:if="{{step === 0}}" class="if-step">
+    <!-- 步骤一：选场景（if-anim-* 按切步方向滑入） -->
+    <view wx:if="{{step === 0}}" class="if-step if-anim-{{stepDir}}">
       <view class="if-step-title">{{flow.labels.step0Title || '选择推演场景'}}</view>
       <view
         wx:for="{{flow.scenes}}"
@@ -57,7 +58,7 @@
     </view>
 
     <!-- 步骤二：选策略 -->
-    <view wx:if="{{step === 1 && sceneIndex >= 0}}" class="if-step">
+    <view wx:if="{{step === 1 && sceneIndex >= 0}}" class="if-step if-anim-{{stepDir}}">
       <view class="if-caption">{{flow.scenes[sceneIndex].title}}</view>
       <view wx:if="{{flow.scenes[sceneIndex].situation}}" class="if-situation"><rich-text nodes="{{flow.scenes[sceneIndex].situation}}" /></view>
       <view
@@ -77,7 +78,7 @@
     </view>
 
     <!-- 步骤三：看结果 -->
-    <view wx:if="{{step === 2 && sceneIndex >= 0 && optionIndex >= 0}}" class="if-step">
+    <view wx:if="{{step === 2 && sceneIndex >= 0 && optionIndex >= 0}}" class="if-step if-anim-{{stepDir}}">
       <block wx:for="{{flow.scenes[sceneIndex].options}}" wx:for-item="opt" wx:key="index">
         <view wx:if="{{index === optionIndex}}">
           <view class="if-result-title">{{flow.labels.resultTitle || '推演结果'}}</view>

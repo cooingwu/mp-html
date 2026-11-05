@@ -53,6 +53,7 @@ Component({
 
   data: {
     step: 0, // 0 选场景 / 1 选策略 / 2 看结果
+    stepDir: 'fwd', // 切步方向：fwd 前进（右侧滑入）/ back 后退（左侧滑入）
     sceneIndex: -1,
     optionIndex: -1,
     themeStyle: '', // CSS 变量注入串
@@ -64,6 +65,7 @@ Component({
       // 数据更换时重置流程
       this.setData({
         step: 0,
+        stepDir: 'fwd',
         sceneIndex: -1,
         optionIndex: -1,
       });
@@ -146,31 +148,41 @@ Component({
     /** 选择场景 */
     onSceneTap(e) {
       const index = e.currentTarget.dataset.index;
-      this.setData({ sceneIndex: index, optionIndex: -1, step: 1 });
+      this.setData({
+        sceneIndex: index,
+        optionIndex: -1,
+        step: 1,
+        stepDir: 'fwd',
+      });
     },
 
     /** 选择策略 */
     onOptionTap(e) {
       const index = e.currentTarget.dataset.index;
-      this.setData({ optionIndex: index, step: 2 });
+      this.setData({ optionIndex: index, step: 2, stepDir: 'fwd' });
     },
 
     /** 上一步 */
     onPrev() {
       const step = this.data.step;
       if (step > 0) {
-        this.setData({ step: step - 1 });
+        this.setData({ step: step - 1, stepDir: 'back' });
       }
     },
 
     /** 换个选项 */
     changeOption() {
-      this.setData({ step: 1 });
+      this.setData({ step: 1, stepDir: 'back' });
     },
 
     /** 换个场景 */
     changeScene() {
-      this.setData({ step: 0, sceneIndex: -1, optionIndex: -1 });
+      this.setData({
+        step: 0,
+        stepDir: 'back',
+        sceneIndex: -1,
+        optionIndex: -1,
+      });
     },
   },
 });
