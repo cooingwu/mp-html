@@ -2,6 +2,10 @@
  * 互动流程组件样式
  * 全部颜色走 CSS 变量（--if-*），未配置主题时使用内置深色金默认值，
  * 书籍级主题（publications.interactiveTheme）由组件根节点 style 注入覆盖
+ *
+ * 尺寸用 px 而非 rpx：rpx 随屏宽缩放，横屏（pageOrientation: landscape）
+ * 时逻辑宽度翻倍以上，会导致字体/图标整体拉伸 4~5 倍；px 固定不随屏宽变化，
+ * 卡片以 max-width + 水平居中适配宽内容栏
  */
 
 .iflow {
@@ -14,17 +18,23 @@
   --if-surface: #26231e;
   --if-soft: rgba(255, 255, 255, 0.04);
   --if-line: #555;
+
+  /* 宽内容栏（横屏）下限制卡片宽度并居中；竖屏 100% 不受影响 */
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ===== 占位小卡（teaser） ===== */
 .if-teaser {
   display: flex;
   align-items: center;
-  padding: 24rpx 26rpx;
-  margin: 32rpx 0;
+  padding: 12px 13px;
+  margin-top: 16px;
+  margin-bottom: 16px;
   background: var(--if-bg);
   border: 1px solid var(--if-primary);
-  border-radius: 28rpx;
+  border-radius: 14px;
 }
 
 .if-teaser-hover {
@@ -33,13 +43,13 @@
 
 .if-teaser-badge {
   flex-shrink: 0;
-  padding: 4rpx 14rpx;
-  margin-right: 22rpx;
-  font-size: 22rpx;
+  padding: 2px 7px;
+  margin-right: 11px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--if-bg);
   background: var(--if-primary);
-  border-radius: 12rpx;
+  border-radius: 6px;
 }
 
 .if-teaser-body {
@@ -48,21 +58,21 @@
 }
 
 .if-teaser-title {
-  font-size: 28rpx;
+  font-size: 14px;
   font-weight: 500;
   color: var(--if-text);
 }
 
 .if-teaser-sub {
-  margin-top: 4rpx;
-  font-size: 22rpx;
+  margin-top: 2px;
+  font-size: 11px;
   color: var(--if-muted);
 }
 
 .if-teaser-go {
   flex-shrink: 0;
-  margin-left: 16rpx;
-  font-size: 26rpx;
+  margin-left: 8px;
+  font-size: 13px;
   color: var(--if-primary);
 }
 
@@ -72,39 +82,40 @@
   overflow: hidden;
   background: var(--if-bg);
   border: 1px solid rgba(226, 192, 124, 0.3);
-  border-radius: 32rpx;
+  border-radius: 16px;
 }
 
 /* 正文内嵌（inline 布局）时与上下文本/组件的间距；popup 弹层内不加 */
 .iflow-inline {
-  margin: 32rpx 0;
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 
 .if-head {
-  padding: 36rpx 32rpx 8rpx;
+  padding: 18px 16px 4px;
   text-align: center;
 }
 
 .if-title {
-  font-size: 32rpx;
+  font-size: 16px;
   font-weight: bold;
   color: var(--if-text);
 }
 
 .if-sub {
-  margin-top: 10rpx;
-  font-size: 24rpx;
+  margin-top: 5px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--if-muted);
 }
 
 .if-close {
   position: absolute;
-  top: 24rpx;
-  right: 28rpx;
+  top: 12px;
+  right: 14px;
   z-index: 10;
-  padding: 8rpx;
-  font-size: 36rpx;
+  padding: 4px;
+  font-size: 18px;
   color: var(--if-primary);
   opacity: 0.7;
 }
@@ -113,8 +124,8 @@
 .if-stepper {
   display: flex;
   align-items: flex-start;
-  padding: 28rpx 56rpx 0;
-  margin-bottom: 28rpx;
+  padding: 14px 28px 0;
+  margin-bottom: 14px;
 }
 
 .if-snode {
@@ -125,8 +136,8 @@
 }
 
 .if-sdot {
-  width: 28rpx;
-  height: 28rpx;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
@@ -137,7 +148,7 @@
 
 .if-sdot.done {
   background: transparent;
-  border: 3rpx solid var(--if-primary);
+  border: 2px solid var(--if-primary);
 }
 
 .if-sdot.todo {
@@ -146,8 +157,8 @@
 
 .if-sline {
   flex: 1;
-  height: 4rpx;
-  margin-top: 12rpx;
+  height: 2px;
+  margin-top: 6px;
   background: var(--if-line, #333);
   transition: background-color 0.3s ease;
 }
@@ -157,8 +168,8 @@
 }
 
 .if-slabel {
-  margin-top: 14rpx;
-  font-size: 26rpx;
+  margin-top: 7px;
+  font-size: 13px;
   color: #555;
 }
 
@@ -168,7 +179,7 @@
 
 /* 步骤内容 */
 .if-step {
-  padding: 0 32rpx 28rpx;
+  padding: 0 16px 14px;
 }
 
 /* 切步方向动画：前进从右侧滑入、后退从左侧滑入（wx:if 重建节点时播放） */
@@ -183,7 +194,7 @@
 @keyframes ifStepFwd {
   from {
     opacity: 0;
-    transform: translateX(48rpx);
+    transform: translateX(24px);
   }
   to {
     opacity: 1;
@@ -194,7 +205,7 @@
 @keyframes ifStepBack {
   from {
     opacity: 0;
-    transform: translateX(-48rpx);
+    transform: translateX(-24px);
   }
   to {
     opacity: 1;
@@ -203,8 +214,8 @@
 }
 
 .if-step-title {
-  margin-bottom: 24rpx;
-  font-size: 30rpx;
+  margin-bottom: 12px;
+  font-size: 15px;
   font-weight: bold;
   text-align: center;
   color: var(--if-text);
@@ -214,11 +225,11 @@
 .if-scene {
   display: flex;
   align-items: center;
-  min-height: 140rpx;
-  padding: 20rpx 28rpx;
-  margin-bottom: 20rpx;
+  min-height: 70px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
   background: var(--if-surface, #26231e);
-  border-radius: 24rpx;
+  border-radius: 12px;
 }
 
 .if-scene-hover {
@@ -231,55 +242,55 @@
 }
 
 .if-scene-tag {
-  margin-bottom: 6rpx;
-  font-size: 24rpx;
-  letter-spacing: 2rpx;
+  margin-bottom: 3px;
+  font-size: 12px;
+  letter-spacing: 1px;
   color: var(--if-primary);
 }
 
 .if-scene-name {
-  font-size: 32rpx;
+  font-size: 16px;
   color: var(--if-text);
 }
 
 .if-scene-desc {
-  margin-top: 6rpx;
-  font-size: 26rpx;
+  margin-top: 3px;
+  font-size: 13px;
   line-height: 1.5;
   color: var(--if-muted);
 }
 
 .if-scene-arrow {
   flex-shrink: 0;
-  margin-left: 20rpx;
-  font-size: 32rpx;
+  margin-left: 10px;
+  font-size: 16px;
   color: var(--if-muted);
 }
 
 /* 策略选项 */
 .if-caption {
-  margin-bottom: 20rpx;
-  font-size: 30rpx;
+  margin-bottom: 10px;
+  font-size: 15px;
   color: var(--if-primary);
 }
 
 .if-situation {
-  padding: 24rpx 28rpx;
-  margin-bottom: 24rpx;
-  font-size: 26rpx;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  font-size: 13px;
   line-height: 1.8;
   color: var(--if-text);
   background: var(--if-soft, rgba(255, 255, 255, 0.04));
-  border-radius: 24rpx;
+  border-radius: 12px;
   opacity: 0.9;
 }
 
 .if-opt {
-  padding: 24rpx 28rpx;
-  margin-bottom: 20rpx;
+  padding: 12px 14px;
+  margin-bottom: 10px;
   background: var(--if-surface, #211e1a);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 24rpx;
+  border-radius: 12px;
 }
 
 .if-opt-hover {
@@ -289,15 +300,15 @@
 .if-opt-head {
   display: flex;
   align-items: center;
-  margin-bottom: 12rpx;
+  margin-bottom: 6px;
 }
 
 .if-opt-dot {
   flex-shrink: 0;
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 20rpx;
-  border: 2rpx solid var(--if-primary);
+  width: 14px;
+  height: 14px;
+  margin-right: 10px;
+  border: 1px solid var(--if-primary);
   border-radius: 50%;
   background: transparent;
 }
@@ -308,11 +319,11 @@
 
 .if-opt-badge {
   flex-shrink: 0;
-  padding: 4rpx 18rpx;
-  margin-right: 24rpx;
-  font-size: 26rpx;
+  padding: 2px 9px;
+  margin-right: 12px;
+  font-size: 13px;
   line-height: 1.4;
-  border-radius: 14rpx;
+  border-radius: 7px;
 }
 
 /* 选项徽章轮换三色（按序号取模） */
@@ -335,21 +346,21 @@
 }
 
 .if-opt-text {
-  font-size: 28rpx;
+  font-size: 14px;
   line-height: 1.7;
   color: var(--if-text);
 }
 
 /* 结果 */
 .if-result-title {
-  margin-bottom: 16rpx;
-  font-size: 30rpx;
+  margin-bottom: 8px;
+  font-size: 15px;
   font-weight: bold;
   color: var(--if-primary);
 }
 
 .if-result-body {
-  font-size: 28rpx;
+  font-size: 14px;
   line-height: 1.8;
   color: var(--if-text);
   opacity: 0.92;
@@ -367,23 +378,23 @@
 
 /* 附加解读块（通用：标题/内容/色调由数据决定） */
 .if-block {
-  padding: 24rpx 28rpx;
-  margin-top: 24rpx;
+  padding: 12px 14px;
+  margin-top: 12px;
   background: rgba(127, 127, 127, 0.08);
   border: 1px solid rgba(127, 127, 127, 0.28);
-  border-radius: 24rpx;
+  border-radius: 12px;
 }
 
 .if-block-title {
-  margin-bottom: 10rpx;
-  font-size: 26rpx;
+  margin-bottom: 5px;
+  font-size: 13px;
   font-weight: bold;
   color: var(--if-text);
   opacity: 0.85;
 }
 
 .if-block-body {
-  font-size: 26rpx;
+  font-size: 13px;
   line-height: 1.7;
   color: var(--if-muted);
 }
@@ -419,14 +430,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 40rpx;
+  margin-top: 20px;
 }
 
 .if-action-btn {
-  padding: 20rpx 44rpx;
-  font-size: 26rpx;
+  padding: 10px 22px;
+  font-size: 13px;
   line-height: 1;
-  border-radius: 999rpx;
+  border-radius: 999px;
 }
 
 .if-action-btn.left {
@@ -447,13 +458,13 @@
 
 /* 底部操作条 */
 .if-actionbar {
-  min-height: 72rpx;
-  padding: 16rpx 32rpx 24rpx;
+  min-height: 36px;
+  padding: 8px 16px 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .if-prev {
   display: inline-block;
-  font-size: 28rpx;
+  font-size: 14px;
   color: #999;
 }
