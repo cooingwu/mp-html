@@ -1,13 +1,10 @@
-# mp-html
+# @coohub/mp-html
 
-> 一个强大的小程序富文本组件
+> 一个强大的小程序富文本组件（基于 [jin-yufeng/mp-html](https://github.com/jin-yufeng/mp-html) v2.5.1 的定制 fork）
 
-![star](https://img.shields.io/github/stars/jin-yufeng/mp-html)
-![forks](https://img.shields.io/github/forks/jin-yufeng/mp-html)
-[![npm](https://img.shields.io/npm/v/mp-html)](https://www.npmjs.com/package/mp-html)
-![downloads](https://img.shields.io/npm/dt/mp-html)
-[![Coverage Status](https://coveralls.io/repos/github/jin-yufeng/mp-html/badge.svg?branch=master)](https://coveralls.io/github/jin-yufeng/mp-html?branch=master)
-![license](https://img.shields.io/github/license/jin-yufeng/mp-html)
+[![npm](https://img.shields.io/npm/v/@coohub/mp-html)](https://www.npmjs.com/package/@coohub/mp-html)
+![downloads](https://img.shields.io/npm/dt/@coohub/mp-html)
+![license](https://img.shields.io/github/license/cooingwu/mp-html)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## 功能介绍
@@ -17,10 +14,19 @@
 - 支持设置占位图（加载中、出错时、预览时）
 - 支持锚点跳转、长按复制等丰富功能
 - 支持大部分 *html* 实体
+- 支持正文折叠块（`<details><summary>`）
 - 丰富的插件（关键词搜索、内容编辑、`latex` 公式等）
-- 效率高、容错性强且轻量化（`≈25KB`，`9KB gzipped`）
+- 效率高、容错性强且轻量化
 
-查看 [功能介绍](https://jin-yufeng.github.io/mp-html/#/overview/feature) 了解更多
+**本 fork 在上游基础上新增：**
+
+| 能力 | 说明 |
+|:---:|---|
+| [image-anchor](plugins/image-anchor/README.md) | 图片锚点解读插件：在图片上挂可点击锚点，弹出富文本/视频/音频解读，支持预设样式、脉冲动画、自动尺寸监听，也可脱离 mp-html 独立使用 |
+| [headings](plugins/headings/README.md) | 文章目录插件：提取 H1-H6 生成树形目录，滚动时自动高亮当前标题 |
+| [interactive-flow](plugins/interactive-flow/README.md) | 正文互动流程插件：「选场景 → 选策略 → 看结果」三步互动组件，支持书籍级主题换肤、inline/popup 两种布局、步骤切换方向动画 |
+
+查看 [上游功能介绍](https://jin-yufeng.github.io/mp-html/#/overview/feature) 了解更多
 
 ## 使用方法
 ### 原生平台
@@ -28,7 +34,7 @@
   1. 在项目目录下安装组件包
 
      ```bash
-     npm install mp-html
+     npm install @coohub/mp-html
      ```
   2. 开发者工具中勾选 `使用 npm 模块`（若没有此选项则不需要）并点击 `工具 - 构建 npm`
   3. 在需要使用页面的 `json` 文件中添加
@@ -36,7 +42,7 @@
      ```json
      {
        "usingComponents": {
-         "mp-html": "mp-html"
+         "mp-html": "@coohub/mp-html"
        }
      }
      ```
@@ -67,43 +73,17 @@
        }
      }
      ```
-  
+
   后续步骤同上
 
-查看 [快速开始](https://jin-yufeng.github.io/mp-html/#/overview/quickstart) 了解更多
+> 注意：`image-anchor`、`headings`、`interactive-flow` 为本 fork 新增插件，默认构建（`npm run build:weixin`）已启用 `markdown` + `image-anchor` + `headings` + `interactive-flow`。**四者需在 `tools/config.js` 中一同启用**，漏开任何一个已装功能会丢失，详见各插件 README。
 
 ### uni-app
-- 源码方式
-  1. 将源码中 `dist/uni-app` 内的内容拷贝到项目根目录下  
-     可以直接通过 [插件市场](https://ext.dcloud.net.cn/plugin?id=805) 引入
-  2. 在需要使用页面的 `vue` 文件中添加
-
-     ```vue
-     <template>
-       <view>
-         <mp-html :content="html" />
-       </view>
-     </template>
-     <script>
-       import mpHtml from '@/components/mp-html/mp-html'
-       export default {
-         // HBuilderX 2.5.5+ 可以通过 easycom 自动引入
-         components: {
-           mpHtml
-         },
-         data () {
-           return {
-             html: '<div>Hello World!</div>'
-           }
-         }
-       }
-     </script>
-     ```
 - `npm` 方式
   1. 在项目目录下安装组件包
 
      ```bash
-     npm install mp-html
+     npm install @coohub/mp-html
      ```
   2. 在需要使用页面的 `vue` 文件中添加
 
@@ -114,7 +94,7 @@
        </view>
      </template>
      <script>
-       import mpHtml from 'mp-html/dist/uni-app/components/mp-html/mp-html'
+       import mpHtml from '@coohub/mp-html/dist/uni-app/components/mp-html/mp-html'
        export default {
          // 不可省略
          components: {
@@ -129,16 +109,11 @@
      </script>
      ```
 
-  使用 `cli` 方式运行的项目，通过 `npm` 方式引入时，需要在 `vue.config.js` 中配置 `transpileDependencies`，详情可见 [#330](https://github.com/jin-yufeng/mp-html/issues/330#issuecomment-913617687)  
-  如果在 `nvue` 中使用还要将 `dist/uni-app/static` 目录下的内容拷贝到项目的 `static` 目录下，否则无法运行  
-
-查看 [快速开始](https://jin-yufeng.github.io/mp-html/#/overview/quickstart) 了解更多
-
 ## 组件属性
 
 | 属性 | 类型 | 默认值 | 说明 |
 |:---:|:---:|:---:|---|
-| container-style | String |  | 容器的样式（[2.1.0+](https://jin-yufeng.github.io/mp-html/#/changelog/changelog#v210)） |
+| container-style | String |  | 容器的样式 |
 | content | String |  | 用于渲染的 html 字符串 |
 | copy-link | Boolean | true | 是否允许外部链接被点击时自动复制 |
 | domain | String |  | 主域名（用于链接拼接） |
@@ -154,6 +129,8 @@
 | tag-style | Object |  | 设置标签的默认样式 |
 | use-anchor | Boolean | false | 是否使用锚点链接 |
 
+插件新增的属性（`image-anchors`、`interactive-flows`、`flow-theme` 等）见各插件 README。
+
 查看 [属性](https://jin-yufeng.github.io/mp-html/#/basic/prop) 了解更多
 
 ## 组件事件
@@ -165,6 +142,8 @@
 | error | 发生渲染错误时 |
 | imgtap | 图片被点击时 |
 | linktap | 链接被点击时 |
+
+插件新增的事件（`anchortap`、`headingsready`、`flowopen` 等）见各插件 README。
 
 查看 [事件](https://jin-yufeng.github.io/mp-html/#/basic/event) 了解更多
 
@@ -179,12 +158,12 @@
 | getRect | 获取富文本内容的位置和大小 |
 | setContent | 设置富文本内容 |
 | imgList | 获取所有图片的数组 |
-| pauseMedia | 暂停播放音视频（[2.2.2+](https://jin-yufeng.github.io/mp-html/#/changelog/changelog#v222)） |
-| setPlaybackRate | 设置音视频播放速率（[2.4.0+](https://jin-yufeng.github.io/mp-html/#/changelog/changelog#v240)） |
+| pauseMedia | 暂停播放音视频 |
+| setPlaybackRate | 设置音视频播放速率 |
 
 查看 [api](https://jin-yufeng.github.io/mp-html/#/advanced/api) 了解更多
 
-## 插件扩展  
+## 插件扩展
 除基本功能外，本组件还提供了丰富的扩展，可按照需要选用
 
 | 名称 | 作用 |
@@ -200,62 +179,39 @@
 | img-cache | 图片缓存 by [@PentaTea](https://github.com/PentaTea) |
 | latex | 渲染 latex 公式 by [@Zeng-J](https://github.com/Zeng-J) |
 | card | 卡片展示 by [@whoooami](https://github.com/whoooami) |
+| [image-anchor](plugins/image-anchor/README.md) | **本 fork 新增** 图片锚点解读 |
+| [headings](plugins/headings/README.md) | **本 fork 新增** 文章目录与滚动高亮 |
+| [interactive-flow](plugins/interactive-flow/README.md) | **本 fork 新增** 正文互动流程组件 |
 
-查看 [插件](https://jin-yufeng.github.io/mp-html/#/advanced/plugin) 了解更多
+上游插件的详细说明可见 [插件文档](https://jin-yufeng.github.io/mp-html/#/advanced/plugin)
 
-## 使用案例
+## 更新日志（本 fork）
+- v1.0.7 (2026-11-09)
+  1. `A` 新增 [interactive-flow](plugins/interactive-flow/README.md) 互动流程插件：场景→选项→结果三步互动，书籍级主题换肤（CSS 变量）、inline/popup 布局、固定文案可覆盖（labels）、附加解读块（tone 分级）、步骤切换方向动画
+  2. `A` 新增正文折叠块：解析并渲染 `<details><summary>` 折叠展开
+  3. `U` [image-anchor](plugins/image-anchor/README.md) 锚点支持内嵌说明文字，自动适配宽高与精确测量
 
-| [官方示例](https://github.com/jin-yufeng/mp-html-demo) | 欢喜商城 | 多么生活 | 食法查 | 微慕 | 科学复习 |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| ![富文本插件](docs/assets/case/富文本插件.jpg) | ![欢喜商城](docs/assets/case/欢喜商城.png) | ![多么生活](docs/assets/case/多么生活.jpg) | ![食法查](docs/assets/case/食法查.png) | ![微慕](docs/assets/case/微慕.jpg) | ![科学复习](docs/assets/case/科学复习.png) |
+- v1.0.6
+  1. `A` 新增 [headings](plugins/headings/README.md) 文章目录插件
+  2. `U` image-anchor 新增 `anchor-auto-resize` 属性，自动监听图片尺寸变化重算锚点位置
+  3. `U` image-anchor 新增容器缩放比例因子，优化缩放场景下的视觉一致性
+  4. `U` image-anchor 改进图片尺寸计算逻辑，批量查询提升性能
 
-| [程序员技术之旅](https://github.com/fendoudebb/z-blog-wx) | 典典博客 | 优秀笔记 | 同城共享书 | [技术源 share](https://github.com/wangsrGit119/mini-blog-halo) | 你的代码写的真棒 |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| ![程序员技术之旅](docs/assets/case/程序员技术之旅.jpg) | ![典典博客](docs/assets/case/典典博客.jpg) | ![优秀笔记](docs/assets/case/优秀笔记.jpg) | ![同城共享书](docs/assets/case/同城共享书.jpg) | ![技术源share](docs/assets/case/技术源share.jpg) | ![你的代码写的真棒](docs/assets/case/你的代码写的真棒.jpg) |
+- v1.0.5
+  1. `U` image-anchor 完善独立模式（脱离 mp-html 使用），优化弹窗定位与事件处理
+  2. `U` image-anchor 锚点/弹窗触摸事件防抖、阻止冒泡
 
-| 谛否 | 小莫唐尼 | [模版演示](https://github.com/zhihuifanqiechaodan/miniprogram-template) | AI瓦力 | 豆流便签 | 前端八股通 |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| ![谛否](docs/assets/case/谛否.jpg) | ![小莫唐尼](docs/assets/case/小莫唐尼.png) | ![MiniProgram模版演示](docs/assets/case/MiniProgram模版演示.jpg) | ![AI瓦力](docs/assets/case/AI瓦力.jpg) | ![豆流便签](docs/assets/case/豆流便签.jpg) | ![前端八股通](docs/assets/case/前端八股通.jpg) |
+- v1.0.0 ~ v1.0.4
+  1. 基于 jin-yufeng/mp-html v2.5.1 fork（含流式输出优化等上游后续修复）
+  2. `A` 新增 [image-anchor](plugins/image-anchor/README.md) 图片锚点插件并持续修复完善（编译错误、锚点样式渲染、匹配逻辑、弹窗样式、skyline/webview 兼容等）
 
-以上排名不分先后，更多可见 [使用案例收集](https://github.com/jin-yufeng/mp-html/issues/27)（欢迎添加）  
+上游版本的更新日志可见 [上游更新日志](https://jin-yufeng.github.io/mp-html/#/changelog/changelog)
 
-## 许可与支持
+## 许可与致谢
 - 许可  
-  您可以免费的使用（包括商用）、复制或修改本组件 [MIT License](https://github.com/jin-yufeng/mp-html/blob/master/LICENSE)  
-  在用于生产环境前务必经过充分测试，由插件 `bug` 带来的损失概不负责（可以自行修改源码）  
+  [MIT License](LICENSE)  
+  在用于生产环境前务必经过充分测试，由 `bug` 带来的损失概不负责
 
-- 联系  
-  欢迎加入 `QQ` 交流群：  
-  群1（已满）：`699734691`  
-  群2（已满）：`778239129`  
-  群3：`960265313`  
-  ![group](docs/assets/group.jpg)  
-
-- 支持  
-  ![支持](docs/assets/sponsor.png)   
-
-## 更新日志
-- v2.5.1 (20250420)
-  1. `U` `uni-app` 包适配鸿蒙 `APP` [详细](https://github.com/jin-yufeng/mp-html/issues/615)
-  2. `U` 微信小程序替换废弃 `api` `getSystemInfoSync` [详细](https://github.com/jin-yufeng/mp-html/issues/613)
-  3. `F` 修复了微信小程序 `glass-easel` 框架下真机换行异常的问题 [详细](https://github.com/jin-yufeng/mp-html/pull/607) by [@PaperStrike](https://github.com/PaperStrike)
-  4. `F` 修复了 `uni-app` 包 `app` 端播放视频可能报错的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/617)
-  5. `F` 修复了 `latex` 插件可能出现 `xxx can be used only in display mode` 的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/632)
-  6. `F` 修复了 `uni-app` 包 `latex` 公式可能不显示的问题  [#599](https://github.com/jin-yufeng/mp-html/issues/599)、[#627](https://github.com/jin-yufeng/mp-html/issues/627)
-
-- v2.5.0 (20240422)
-  1. `U` `play` 事件增加返回 `src` 等信息 [详细](https://github.com/jin-yufeng/mp-html/issues/526)
-  2. `U` `preview-img` 属性支持设置为 `all` 开启 `base64` 图片预览 [详细](https://github.com/jin-yufeng/mp-html/issues/536)
-  3. `U` `editable` 插件增加简易模式（点击文字直接编辑）
-  4. `U` `latex` 插件支持块级公式 [详细](https://github.com/jin-yufeng/mp-html/issues/582)
-  5. `F` 修复了表格部分情况下背景丢失的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/587)
-  6. `F` 修复了部分 `svg` 无法显示的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/591)
-  7. `F` 修复了 `uni-app` 包 `h5` 和 `app` 端部分情况下样式无法识别的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/518)
-  8. `F` 修复了 `latex` 插件部分情况下显示不正确的问题 [详细](https://github.com/jin-yufeng/mp-html/issues/580)
-  9. `F` 修复了 `editable` 插件表格无法删除的问题
-  10. `F` 修复了 `editable` 插件 `uni-app` 包 `vue3` `h5` 端点击图片报错的问题
-  11. `F` 修复了 `editable` 插件 `uni-app` 包点击表格没有菜单栏的问题
-
-  从 `1.x` 的升级方法可见 [更新指南](https://jin-yufeng.github.io/mp-html/#/changelog/changelog?id=v200)
-
-查看 [更新日志](https://jin-yufeng.github.io/mp-html/#/changelog/changelog) 了解更多
+- 致谢  
+  本项目基于 [jin-yufeng/mp-html](https://github.com/jin-yufeng/mp-html) 修改，感谢原作者的开源贡献  
+  上游文档：[jin-yufeng.github.io/mp-html](https://jin-yufeng.github.io/mp-html)

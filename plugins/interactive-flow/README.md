@@ -31,7 +31,34 @@
 |---|---|---|
 | flowopen | popup 布局的占位小卡被点击 | `{ id }`（widget id） |
 
-`layout: 'popup'` 时正文只渲染占位小卡，页面监听 `bind:flowopen` 后自行唤起全屏弹层，弹层内以独立模式引用本组件（`variant="full"` + `show-close`，theme 直传）。
+`layout: 'popup'` 时正文只渲染占位小卡，页面监听 `bind:flowopen` 后自行唤起全屏弹层，弹层内以独立模式引用本组件。
+
+### 弹层独立模式（popup 布局配套）
+
+弹层内单独引用 `interactive-flow` 组件（组件路径 `@coohub/mp-html/dist/mp-weixin/interactive-flow/interactive-flow`）：
+
+```html
+<interactive-flow
+  flow="{{flow}}"
+  theme="{{theme}}"
+  variant="full"
+  show-close="{{true}}"
+  bindclose="onFlowClose"
+/>
+```
+
+| 属性 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| variant | String | 'inline' | `full` 为弹层完整模式（含标题区/关闭按钮，**不会**附加正文间距） |
+| show-close | Boolean | false | 是否显示右上角关闭按钮 |
+| bindclose | event |  | 关闭按钮被点击时触发 |
+
+> 注意：`variant="full"` 组件不要放在正文流里再加外边距，弹层场景组件即面板本身。
+
+## 交互行为
+
+- **步骤切换方向动画**：前进（选场景/选选项）从右侧滑入，后退（上一步/换选项/换场景）从左侧滑入，0.32s ease-out；步进条颜色平滑过渡。
+- **正文间距**：`variant` 为默认 `inline` 且 `layout` 非 `popup` 时，组件上下各留 32rpx 间距。
 
 ## 数据格式
 
@@ -97,8 +124,19 @@
   "accent": "#c98b5a",
   "background": "#1c1a17",
   "text": "#f3e6c8",
-  "muted": "#9a8f7d"
+  "muted": "#9a8f7d",
+  "surface": "#26231e",
+  "line": "#555555"
 }
 ```
 
-组件根节点注入 CSS 变量 `--if-primary/--if-accent/--if-bg/--if-text/--if-muted`，样式全部使用 `var(--if-xxx, 默认值)`，换肤零代码。
+| 字段 | 说明 |
+|---|---|
+| primary / accent | 主色 / 强调色（按钮、激活态、emphasis 解读块边框等） |
+| background / text / muted | 整体底色 / 正文文字 / 次要文字 |
+| surface |（可选）次级表面：场景卡、选项卡的实底色，浅色主题下建议设置以保证卡片可读 |
+| line |（可选）线条色：未完成步骤点/连线、徽章描边 |
+
+组件根节点注入 CSS 变量 `--if-primary/--if-accent/--if-bg/--if-text/--if-muted/--if-surface/--if-line`，样式全部使用 `var(--if-xxx, 默认值)`，换肤零代码。`--if-soft`（情境卡半透明叠加底）不暴露配置，由组件按 `background` 相对亮度自动派生（浅底叠黑 5%、深底叠白 4%）。
+
+内置预设：`dark-gold`（深色金）、`light-ink`（浅色墨）。

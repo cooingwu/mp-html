@@ -1,9 +1,17 @@
 {
   "name": "@coohub/mp-html",
   "version": "1.0.7",
-  "description": "小程序富文本组件（含图片锚点插件）",
+  "description": "小程序富文本组件（fork 自 mp-html，新增图片锚点/文章目录/互动流程插件与正文折叠块）",
   "miniprogram": "dist/mp-weixin",
-  "repository": "https://github.com/cooingwu/mp-html",
+  "files": [
+    "dist",
+    "plugins",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cooingwu/mp-html.git"
+  },
   "author": "CooingWu",
   "license": "MIT",
   "publishConfig": {
@@ -12,7 +20,10 @@
   "keywords": [
     "miniprogram",
     "rich-text",
-    "html"
+    "html",
+    "image-anchor",
+    "headings",
+    "interactive"
   ],
   "standard": {
     "globals": [
