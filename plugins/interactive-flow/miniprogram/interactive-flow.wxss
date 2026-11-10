@@ -4,8 +4,8 @@
  * 书籍级主题（publications.interactiveTheme）由组件根节点 style 注入覆盖
  *
  * 尺寸用 px 而非 rpx：rpx 随屏宽缩放，横屏（pageOrientation: landscape）
- * 时逻辑宽度翻倍以上，会导致字体/图标整体拉伸 4~5 倍；px 固定不随屏宽变化，
- * 卡片以 max-width + 水平居中适配宽内容栏
+ * 时逻辑宽度翻倍以上，会导致字体/图标整体拉伸 4~5 倍；px 固定不随屏宽变化。
+ * 卡片宽度 100% 撑满内容栏（字体固定不会拉伸，只是卡片更宽）
  */
 
 .iflow {
@@ -19,10 +19,7 @@
   --if-soft: rgba(255, 255, 255, 0.04);
   --if-line: #555;
 
-  /* 宽内容栏（横屏）下限制卡片宽度并居中；竖屏 100% 不受影响 */
-  max-width: 520px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
 }
 
 /* ===== 占位小卡（teaser） ===== */
